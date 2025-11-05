@@ -12,9 +12,9 @@ public class TheLoaiDAO {
 	
 	public TheLoai layTheLoaiBangMaTheLoai(int maTheLoai) {
         String sql = "SELECT * FROM the_loai t WHERE t.maTheLoai = ?";
-        Connection conn = ConnectDB.getConnection();
         
-        try (PreparedStatement pst = conn.prepareStatement(sql)){
+        try (Connection conn = ConnectDB.getConnection();
+        		PreparedStatement pst = conn.prepareStatement(sql)){
         	pst.setInt(1, maTheLoai);
             
         	try (ResultSet rs = pst.executeQuery()) {

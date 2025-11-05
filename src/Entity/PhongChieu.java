@@ -6,17 +6,13 @@ public class PhongChieu {
 	private Integer maPhongChieu;
     private String tenPhong;
     private Integer soLuongGhe;
-    private List<Ghe> ghes;
-    private List<SuatChieu> suatChieus;
     
-	public PhongChieu(Integer maPhongChieu, String tenPhong, Integer soLuongGhe, List<Ghe> ghes,
-			List<SuatChieu> suatChieus) {
+	public PhongChieu(Integer maPhongChieu, String tenPhong, Integer soLuongGhe) {
 		super();
 		this.maPhongChieu = maPhongChieu;
 		this.tenPhong = tenPhong;
 		this.soLuongGhe = soLuongGhe;
-		this.ghes = ghes;
-		this.suatChieus = suatChieus;
+		
 	}
 
 	public PhongChieu() {
@@ -46,22 +42,5 @@ public class PhongChieu {
 	public void setSoLuongGhe(Integer soLuongGhe) {
 		this.soLuongGhe = soLuongGhe;
 	}
-
-	public List<Ghe> getGhes() {
-		return ghes;
-	}
-
-	public void setGhes(List<Ghe> ghes) {
-		this.ghes = ghes;
-	}
-
-	public List<SuatChieu> getSuatChieus() {
-		return suatChieus;
-	}
-
-	public void setSuatChieus(List<SuatChieu> suatChieus) {
-		this.suatChieus = suatChieus;
-	}
-    
     
 }

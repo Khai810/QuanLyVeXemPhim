@@ -1,0 +1,93 @@
+package DAO;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import ConnectDB.ConnectDB;
+import Entity.Phim;
+import Entity.PhongChieu;
+import Entity.SuatChieu;
+import Entity.TheLoai;
+
+public class SuatChieuDAO {
+	
+	public List<SuatChieu> getAllSuatChieu(Integer maPhim){
+		List<SuatChieu> list = new ArrayList<SuatChieu>();
+		String sql = "SELECT " +
+                "    sc.maSuatChieu, sc.maPhim AS sc_maPhim, sc.maPhongChieu AS sc_maPhongChieu, " +
+                "    sc.ngayChieu, sc.gioChieu, sc.giaVeCoBan, " +
+                "    p.maPhim, p.tenPhim, p.moTa AS phim_moTa, p.doTuoi, p.quocGia, " +
+                "    p.thoiLuong, p.daoDien, p.ngayKhoiChieu, p.img, " +
+                "    tl.maTheLoai, tl.tenTheLoai, tl.moTa AS theLoai_moTa, " +
+                "    pc.maPhongChieu, pc.tenPhong, pc.soLuongGhe " +
+                "FROM suat_chieu sc " +
+                "LEFT JOIN phim p ON sc.maPhim = p.maPhim " +
+                "LEFT JOIN the_loai tl ON tl.maTheLoai = p.maTheLoai " +
+                "LEFT JOIN phong_chieu pc ON pc.maPhongChieu = sc.maPhongChieu " +
+                "WHERE sc.maPhim = ? " +
+                "ORDER BY sc.gioChieu ASC";
+		
+		try(Connection conn = ConnectDB.getConnection();
+				PreparedStatement pst = conn.prepareStatement(sql)){
+			pst.setInt(1, maPhim);
+			try(ResultSet rs = pst.executeQuery()){
+				while (rs.next()) {
+                    // Tạo TheLoai
+                    TheLoai theLoai = null;
+                    int maTheLoai = rs.getInt("maTheLoai");
+                    if (!rs.wasNull()) {
+                        theLoai = new TheLoai(
+                            maTheLoai,
+                            rs.getString("tenTheLoai"),
+                            rs.getString("theLoai_moTa")
+                        );
+                    }
+
+                    // Tạo Phim
+                    Phim phim = new Phim(
+                        rs.getInt("sc_maPhim"),
+                        rs.getString("tenPhim"),
+                        rs.getString("phim_moTa"),
+                        rs.getString("doTuoi"),
+                        rs.getString("quocGia"),
+                        rs.getInt("thoiLuong"),
+                        rs.getString("daoDien"),
+                        rs.getDate("ngayKhoiChieu") != null ? 
+                                rs.getDate("ngayKhoiChieu").toLocalDate() : null,
+                        rs.getString("img"),
+                        theLoai
+                    );
+
+                    // Tạo PhongChieu
+                    PhongChieu phongChieu = new PhongChieu(
+                        rs.getInt("sc_maPhongChieu"),
+                        rs.getString("tenPhong"),
+                        rs.getInt("soLuongGhe")
+                    );
+
+                    // Tạo SuatChieu
+                    SuatChieu suatChieu = new SuatChieu(
+                        rs.getInt("maSuatChieu"),
+                        phim,
+                        phongChieu,
+                        rs.getDate("ngayChieu") != null ?
+                            rs.getDate("ngayChieu").toLocalDate() : null,
+                        rs.getTime("gioChieu") != null ?
+                            rs.getTime("gioChieu").toLocalTime() : null,
+                        rs.getDouble("giaVeCoBan")
+                    );
+
+                    list.add(suatChieu);
+                }
+            }
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return list;
+	}
+}

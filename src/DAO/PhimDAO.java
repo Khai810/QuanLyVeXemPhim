@@ -12,6 +12,7 @@ import Entity.TheLoai;
 
 public class PhimDAO {
 	TheLoaiDAO theLoaiDAO = new TheLoaiDAO();
+	
 	public ArrayList<Phim> getAllPhim() {
         ArrayList<Phim> listPhim = new ArrayList<>();
         String sql = "SELECT p.*, tl.tenTheLoai, tl.moTa as moTaTheLoai " +
@@ -19,16 +20,20 @@ public class PhimDAO {
                      "LEFT JOIN the_loai tl ON p.maTheLoai = tl.maTheLoai " +
                      "ORDER BY p.ngayKhoiChieu DESC";
         
-        Connection conn = ConnectDB.getConnection();
-        try (PreparedStatement pst = conn.prepareStatement(sql);
-             ResultSet rs = pst.executeQuery()) {
-            
+        try (Connection conn = ConnectDB.getConnection();
+        		PreparedStatement pst = conn.prepareStatement(sql);
+        			ResultSet rs = pst.executeQuery();) {
             while (rs.next()) {
                 TheLoai theLoai = null;
                 int maTheLoai = rs.getInt("maTheLoai");
-                theLoai = theLoaiDAO.layTheLoaiBangMaTheLoai(maTheLoai);
+                if (!rs.wasNull()) {
+                    theLoai = new TheLoai(
+                        maTheLoai,
+                        rs.getString("tenTheLoai"), 
+                        rs.getString("moTa")       
+                    );
+                }
                 
-                // Tạo đối tượng Phim
                 Phim phim = new Phim(
                     rs.getInt("maPhim"),
                     rs.getString("tenPhim"),
@@ -44,8 +49,8 @@ public class PhimDAO {
                 );
                 
                 listPhim.add(phim);
+	            
             }
-            
         } catch (SQLException e) {
             e.printStackTrace();
             System.err.println("Lỗi khi lấy danh sách phim: " + e.getMessage());
@@ -53,5 +58,5 @@ public class PhimDAO {
         
         return listPhim;
     }
-    
+
 }

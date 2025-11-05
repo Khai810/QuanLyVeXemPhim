@@ -27,6 +27,26 @@ public class ConnectDB {
 		}
 	}
 	public static Connection getConnection() {
-		return con;
-	}
+        try {
+            if (con == null || con.isClosed()) {
+                instance.connect();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            instance.connect();
+        }
+        return con;
+    }
+    
+    public void disconnect() {
+        if (con != null) {
+            try {
+                con.close();
+                con = null;
+                System.out.println("Ngắt kết nối database!");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

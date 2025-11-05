@@ -14,7 +14,6 @@ public class Phim {
     private LocalDate ngayKhoiChieu;
     private String img;
     private TheLoai theLoai; // Quan hệ
-    private List<SuatChieu> suatChieus;
     
 	public Phim(Integer maPhim, String tenPhim, String moTa, String doTuoi, String quocGia, Integer thoiLuong,
 			String daoDien, LocalDate ngayKhoiChieu, String img, TheLoai theLoai) {
@@ -114,14 +113,5 @@ public class Phim {
 	public void setTheLoai(TheLoai theLoai) {
 		this.theLoai = theLoai;
 	}
-
-	public List<SuatChieu> getSuatChieus() {
-		return suatChieus;
-	}
-
-	public void setSuatChieus(List<SuatChieu> suatChieus) {
-		this.suatChieus = suatChieus;
-	}
-    
 	
 }
