@@ -6,6 +6,8 @@ public class LoaiGhe {
     private String tenLoaiGhe;
     private String moTa;
     private Double phuThu;
+    private String img;
+    
     
 	public LoaiGhe(Integer maLoaiGhe, String tenLoaiGhe, String moTa, Double phuThu) {
 		super();
@@ -13,6 +15,15 @@ public class LoaiGhe {
 		this.tenLoaiGhe = tenLoaiGhe;
 		this.moTa = moTa;
 		this.phuThu = phuThu;
+	}
+
+	public LoaiGhe(Integer maLoaiGhe, String tenLoaiGhe, String moTa, Double phuThu, String img) {
+		super();
+		this.maLoaiGhe = maLoaiGhe;
+		this.tenLoaiGhe = tenLoaiGhe;
+		this.moTa = moTa;
+		this.phuThu = phuThu;
+		this.img = img;
 	}
 
 	public LoaiGhe() {
@@ -49,6 +60,13 @@ public class LoaiGhe {
 
 	public void setPhuThu(Double phuThu) {
 		this.phuThu = phuThu;
+	}
+	public String getImg() {
+	    return img;
+	}
+
+	public void setImg(String img) {
+	    this.img = img;
 	}
 
     

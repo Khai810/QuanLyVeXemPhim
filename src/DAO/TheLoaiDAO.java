@@ -5,12 +5,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import ConnectDB.ConnectDB;
 import Entity.TheLoai;
 
 public class TheLoaiDAO {
 
 	Connection conn;
-	
+	public TheLoaiDAO() {
+	    try {
+	        this.conn = ConnectDB.getConnection();
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	}
+
 	public TheLoaiDAO(Connection conn) {
 		this.conn = conn;
 	}

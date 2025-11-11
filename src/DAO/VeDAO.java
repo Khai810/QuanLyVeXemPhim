@@ -5,9 +5,11 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Time;
 import java.util.List;
 
+import ConnectDB.ConnectDB;
 import Entity.Ghe;
 import Entity.SuatChieu;
 import Entity.Ve;
@@ -51,8 +53,63 @@ public class VeDAO {
         e.printStackTrace();
         System.err.println("❌ Lỗi khi tạo loạt vé: " + e.getMessage());
         return false;
-    }
-}
+    	}
+	}
+	
+	public boolean taoSetVe(List<Ve> listVe) {
+	    
+	    if (listVe == null || listVe.isEmpty()) {
+	        return true;
+	    }
+	    
+	    String sql = "INSERT INTO ve (maSuatChieu, maGhe, giaVe, ngayDat, ngayChieu, gioChieu, tenGhe, tenPhongChieu) " +
+	                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+	    
+	    try (Connection conn = ConnectDB.getConnection();
+	         PreparedStatement pst = conn.prepareStatement(sql)) {
+
+	        try {
+	            conn.setAutoCommit(false);
+
+	            for (Ve ve : listVe) {
+	                pst.setInt(1, ve.getSuatChieu().getMaSuatChieu());
+	                pst.setInt(2, ve.getGhe().getMaGhe());
+	                pst.setDouble(3, ve.getGiaVe());
+	                pst.setDate(4, Date.valueOf(ve.getNgayDat()));
+	                pst.setDate(5, Date.valueOf(ve.getNgayChieu()));
+	                pst.setTime(6, Time.valueOf(ve.getGioChieu()));
+	                pst.setString(7, ve.getTenGhe());
+	                pst.setString(8, ve.getTenPhongChieu());
+
+	                pst.addBatch();
+	            }
+
+	            int[] results = pst.executeBatch();
+	            
+	            for (int r : results) {
+	                if (r <= 0 && r != Statement.SUCCESS_NO_INFO) {
+	                    throw new SQLException("Một vé trong lô không thể tạo, trả về số hàng: " + r);
+	                }
+	            }
+
+	            conn.commit();
+	            return true;
+
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	            System.err.println("Lỗi khi tạo loạt vé, đang rollback...");
+	            if (conn != null) {
+	                conn.rollback();
+	            }
+	            return false;
+	        }
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        System.err.println("Lỗi khi chuẩn bị tạo vé: " + e.getMessage());
+	        return false;
+	    }
+	}
 
 	
 	public Ve layVeBangMa(int maVe) {

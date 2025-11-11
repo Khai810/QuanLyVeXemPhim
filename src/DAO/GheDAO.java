@@ -4,7 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
+import ConnectDB.ConnectDB;
 import Entity.Ghe;
 import Entity.LoaiGhe;
 import Entity.PhongChieu;
@@ -13,71 +16,68 @@ public class GheDAO {
 	Connection conn;
 	PhongChieuDAO phongChieuDAO;
 	
+	
+	public GheDAO() {
+		super();
+	}
+
 	public GheDAO(Connection conn) {
 		this.conn = conn;
 		this.phongChieuDAO = new PhongChieuDAO(conn);
 	}
-	public Ghe layGheBangTenGhe(String tenGhe) {
-		String sql = "SELECT g.*, lg.*, pc.* " +
-                "FROM ghe g " +
-                "LEFT JOIN loai_ghe lg ON g.maLoaiGhe = lg.maLoaiGhe " +
-                "LEFT JOIN phong_chieu pc ON g.maPhongChieu = pc.maPhongChieu " +
-                "WHERE g.tenGhe = ?";
-        
-        try (PreparedStatement pst = conn.prepareStatement(sql)){
-        	pst.setString(1, tenGhe);
-            
-        	try (ResultSet rs = pst.executeQuery()) {
-                if (rs.next()) {
-                	
-                	// SỬA 2: Tạo LoaiGhe từ dữ liệu đã JOIN
-                    LoaiGhe loaiGhe = null;
-                    int maLoaiGhe = rs.getInt("maLoaiGhe");
-                    // Kiểm tra xem maLoaiGhe có bị NULL không
-                    if (!rs.wasNull()) {
-                        loaiGhe = new LoaiGhe(); // (Giả sử bạn có constructor rỗng và các setter)
-                        loaiGhe.setMaLoaiGhe(maLoaiGhe);
-                        loaiGhe.setTenLoaiGhe(rs.getString("tenLoaiGhe"));
-                        loaiGhe.setPhuThu(rs.getDouble("phuThu"));
-                        // ... set các thuộc tính khác của LoaiGhe từ rs
-                    }
+	
+	public Ghe layGheBangTenGhe(String seatId) {
+	    String sql = "SELECT g.*, lg.*, pc.* " +
+	                 "FROM ghe g " +
+	                 "LEFT JOIN loai_ghe lg ON g.maLoaiGhe = lg.maLoaiGhe " +
+	                 "LEFT JOIN phong_chieu pc ON g.maPhongChieu = pc.maPhongChieu";
+	    
+	    try (PreparedStatement pst = conn.prepareStatement(sql);
+	         ResultSet rs = pst.executeQuery()) {
 
-                    // SỬA 3: Tạo PhongChieu từ dữ liệu đã JOIN
-                    PhongChieu phongChieu = null;
-                    int maPhongChieu = rs.getInt("maPhongChieu");
-                    // Kiểm tra xem maPhongChieu có bị NULL không
-                    if (!rs.wasNull()) {
-                        phongChieu = new PhongChieu(); // (Giả sử bạn có constructor rỗng)
-                        phongChieu.setMaPhongChieu(maPhongChieu);
-                        phongChieu.setTenPhong(rs.getString("tenPhong"));
-                        phongChieu.setSoLuongGhe(rs.getInt("soLuongGhe"));
-                        // ... set các thuộc tính khác của PhongChieu từ rs
-                    }
-                    
-                    // SỬA 4: Tạo Ghe với các đối tượng đã có đầy đủ thông tin
-                    // (Giả sử constructor 4 tham số như bạn viết)
-                    Ghe ghe = new Ghe(
-                        rs.getInt("maGhe"),
-                        rs.getString("tenGhe"),
-                        loaiGhe, // Bây giờ đã có dữ liệu
-                        phongChieu // Bây giờ đã có dữ liệu
-                    );
-                    
-                    // (Nếu lớp Ghe của bạn có thêm thuộc tính, hãy set chúng ở đây)
-                    // ví dụ: ghe.setTrangThaiDat(rs.getBoolean("trangThaiDat"));
-                    
-                    return ghe;
-                    
-                }
-            }
-            
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.err.println("Lỗi khi lấy ghế: " + e.getMessage());
-        }
-        
-        return null;
-    }
+	        while (rs.next()) {
+	            String tenGheDb = rs.getString("tenGhe"); // ví dụ "J1,J2" cho ghế đôi
+	            String[] ids = tenGheDb.split(","); // tách ghế đôi
+	            for (String id : ids) {
+	                if (id.trim().equals(seatId)) { // nếu trùng với ghế cần tìm
+	                    // ===== Tạo LoaiGhe từ dữ liệu đã JOIN =====
+	                    LoaiGhe loaiGhe = null;
+	                    int maLoaiGhe = rs.getInt("maLoaiGhe");
+	                    if (!rs.wasNull()) {
+	                        loaiGhe = new LoaiGhe();
+	                        loaiGhe.setMaLoaiGhe(maLoaiGhe);
+	                        loaiGhe.setTenLoaiGhe(rs.getString("tenLoaiGhe"));
+	                        loaiGhe.setPhuThu(rs.getDouble("phuThu"));
+	                    }
+
+	                    // ===== Tạo PhongChieu từ dữ liệu đã JOIN =====
+	                    PhongChieu phongChieu = null;
+	                    int maPhongChieu = rs.getInt("maPhongChieu");
+	                    if (!rs.wasNull()) {
+	                        phongChieu = new PhongChieu();
+	                        phongChieu.setMaPhongChieu(maPhongChieu);
+	                        phongChieu.setTenPhong(rs.getString("tenPhong"));
+	                        phongChieu.setSoLuongGhe(rs.getInt("soLuongGhe"));
+	                    }
+
+	                    // ===== Tạo Ghe với các đối tượng đã có đầy đủ thông tin =====
+	                    return new Ghe(
+	                        rs.getInt("maGhe"),
+	                        tenGheDb, // vẫn giữ tên gốc như trong DB
+	                        loaiGhe,
+	                        phongChieu
+	                    );
+	                }
+	            }
+	        }
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        System.err.println("Lỗi khi lấy ghế: " + e.getMessage());
+	    }
+	    return null;
+	}
+
 	
 	public Ghe layGhebangMaGhe(int maGhe) {
 		String sql = "SELECT * FROM ghe g LEFT JOIN loai_ghe lg ON g.maLoaiGhe = lg.maLoaiGhe  WHERE maGhe = ? ";
@@ -107,4 +107,37 @@ public class GheDAO {
 	    }
 	    return ghe;
 	}
+	
+	public List<Ghe> getGheTheoPhong(int maPhong) {
+        List<Ghe> list = new ArrayList<>();
+        String sql = "SELECT g.*, lg.tenLoaiGhe, lg.moTa, lg.phuThu " +
+                     "FROM ghe g " +
+                     "JOIN loai_ghe lg ON g.maLoaiGhe = lg.maLoaiGhe " +
+                     "WHERE g.maPhongChieu = ?";
+        try (Connection conn = ConnectDB.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, maPhong);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Ghe g = new Ghe();
+                    g.setMaGhe(rs.getInt("maGhe"));
+                    g.setTenGhe(rs.getString("tenGhe"));
+
+                    LoaiGhe lg = new LoaiGhe();
+                    lg.setMaLoaiGhe(rs.getInt("maLoaiGhe"));
+                    lg.setTenLoaiGhe(rs.getString("tenLoaiGhe"));
+                    lg.setMoTa(rs.getString("moTa"));
+                    lg.setPhuThu(rs.getDouble("phuThu"));
+                    g.setLoaiGhe(lg);
+
+                    list.add(g);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("Lỗi khi lấy danh sách ghế theo phòng: " + e.getMessage());
+        }
+        return list;
+    }
 }
+

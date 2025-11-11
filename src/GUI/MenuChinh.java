@@ -5,9 +5,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class MenuChinh extends JMenuBar {
-	JMenu menuVe, menuNhanVien, menuSuatChieu, menuPhongChieu, menuHoaDon;
+	JMenu menuVe, menuNhanVien, menuSuatChieu, menuPhongChieu, menuHoaDon, menuPhim;
 	JMenuItem itemMuaVe, itemQuanLyVe, itemQuanLyNhanVien, itemQuanLySuatChieu
-		, itemQuanLyHoaDon, itemQuanLyPhongChieu;
+		, itemQuanLyHoaDon, itemQuanLyPhongChieu, itemQuanLyPhim;
 	
     private JFrame parentFrame;
 
@@ -53,6 +53,21 @@ public class MenuChinh extends JMenuBar {
         itemQuanLyHoaDon = new JMenuItem("Quản lý hóa đơn");
         menuHoaDon.add(itemQuanLyHoaDon);
         
+      //Menu Phim
+        menuPhim = new JMenu("Phim");
+        itemQuanLyPhim = new JMenuItem("Quản lý phim");
+        menuPhim.add(itemQuanLyPhim);
+        
+        itemQuanLyPhim.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            	GiaoDienQuanLyPhim panel = new GiaoDienQuanLyPhim();
+                parentFrame.setContentPane(panel);
+                parentFrame.revalidate();
+                parentFrame.repaint();
+            }
+        });
         // Thêm hành động cho "Exit"
 //        itemExit.addActionListener(new ActionListener() {
 //            @Override
@@ -84,5 +99,7 @@ public class MenuChinh extends JMenuBar {
         this.add(menuSuatChieu);
         this.add(menuPhongChieu);
         this.add(menuHoaDon);
+        this.add(menuPhim);
+
     }
 }

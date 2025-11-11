@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -361,9 +362,38 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
 	    pnlTamTinh.setAlignmentX(Component.LEFT_ALIGNMENT); // Căn trái
 
 	    // --- 1. Tính toán giá trị ---
-	    int slVe = gheDaChon.size();
-	    double giaVe = suatChieuDaChon.getGiaVeCoBan(); // Giả sử là double/long
-	    double tongVe = slVe * giaVe;
+	    GheDAO gheDAO = new GheDAO();
+	    double tongVe = 0;
+	    int soVeThuc = 0;
+
+	    Set<String> daTinh = new HashSet<>(); // lưu tất cả ghế đã tính (từng ghế đơn)
+
+	    for (String seatId : gheDaChon) {
+	        if (daTinh.contains(seatId)) continue; // nếu ghế đã tính, bỏ qua
+
+	        Ghe g = gheDAO.layGheBangTenGhe(seatId);
+	        if (g == null) continue;
+
+	        double phuThu = (g.getLoaiGhe() != null ? g.getLoaiGhe().getPhuThu() : 0);
+
+	        if (g.getTenGhe().contains(",")) {
+	            // Ghế đôi: 2 vé + phụ thu 1 lần
+	            tongVe += 2 * suatChieuDaChon.getGiaVeCoBan() + phuThu;
+	            soVeThuc += 2;
+
+	            // Thêm tất cả ghế thành phần vào set
+	            String[] gheThanhPhan = g.getTenGhe().split(",");
+	            for (String gheComp : gheThanhPhan) {
+	                daTinh.add(gheComp.trim());
+	            }
+	        } else {
+	            // Ghế đơn
+	            tongVe += suatChieuDaChon.getGiaVeCoBan() + phuThu;
+	            soVeThuc += 1;
+	            daTinh.add(seatId);
+	        }
+	    }
+
 
 	    // (Lấy soLuongBap, soLuongNuoc từ biến thành viên của lớp)
 	    double tongBap = soLuongBap * GIA_BAP;
@@ -387,7 +417,7 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
 	    pnlTamTinh.add(Box.createRigidArea(new Dimension(0, 10)));
 
 	    // Hàng 1: Vé (Luôn hiển thị)
-	    String veLabel = String.format("Vé xem phim (x%d)", slVe);
+	    String veLabel = String.format("Vé xem phim (x%d)", soVeThuc);
 	    pnlTamTinh.add(createTotalRow(veLabel, formatMoney(tongVe), false));
 	    pnlTamTinh.add(Box.createRigidArea(new Dimension(0, 5)));
 

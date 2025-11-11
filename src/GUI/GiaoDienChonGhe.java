@@ -2,15 +2,12 @@ package GUI;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-
-import ConnectDB.ConnectDB;
 import GUI.GiaoDienChonPhim;
+import DAO.GheDAO;
 import DAO.SuatChieuDAO;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +29,7 @@ public class GiaoDienChonGhe extends JFrame {
     private SuatChieu suatChieu;
     private double basePrice = 60000;
     private Map<String, JButton> seatButtons = new LinkedHashMap<>();
+    private Map<String, Ghe> seatIdMap = new HashMap<>();
     private Set<String> selectedSeats = new LinkedHashSet<>();
     private List<SuatChieu> listSuatChieu;
     // colors
@@ -112,7 +110,6 @@ public class GiaoDienChonGhe extends JFrame {
         return p;
     }
 
-
     private JPanel createSeatArea() {
         JPanel wrapper = new JPanel(new BorderLayout(10, 10));
         wrapper.setBackground(COLOR_BG);
@@ -126,10 +123,9 @@ public class GiaoDienChonGhe extends JFrame {
         lblManChieu.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         wrapper.add(lblManChieu, BorderLayout.NORTH);
 
-     // ===== LƯỚI GHẾ =====
-        seatPanel = new JPanel();
+        // ===== LƯỚI GHẾ =====
+        seatPanel = new JPanel(new GridBagLayout());
         seatPanel.setBackground(COLOR_BG);
-        seatPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 6, 6, 6);
         gbc.fill = GridBagConstraints.NONE;
@@ -137,13 +133,12 @@ public class GiaoDienChonGhe extends JFrame {
         char[] rows = "ABCDEFGHIJ".toCharArray();
         int maxCols = 12;
 
-        // Hàng tiêu đề cột (1..12)
+        // Hàng tiêu đề cột
         gbc.gridy = 0;
         for (int col = 0; col <= maxCols; col++) {
             gbc.gridx = col;
-            if (col == 0) {
-                seatPanel.add(new JLabel(""), gbc);
-            } else {
+            if (col == 0) seatPanel.add(new JLabel(""), gbc);
+            else {
                 JLabel lbl = new JLabel(String.valueOf(col));
                 lbl.setPreferredSize(new Dimension(38, 20));
                 lbl.setHorizontalAlignment(SwingConstants.CENTER);
@@ -151,7 +146,21 @@ public class GiaoDienChonGhe extends JFrame {
             }
         }
 
-        // Các hàng ghế (A..J)
+        // Lấy danh sách ghế theo phòng chiếu
+        List<Ghe> gheList = new GheDAO().getGheTheoPhong(suatChieu.getPhongChieu().getMaPhongChieu());
+        seatIdMap.clear();
+        for (Ghe g : gheList) {
+            String[] ids;
+            if (g.getLoaiGhe().getPhuThu() > 0) {
+                // Ghế đôi
+                ids = g.getTenGhe().split(",");
+            } else {
+                ids = new String[]{ g.getTenGhe() };
+            }
+            for (String id : ids) seatIdMap.put(id, g);
+        }
+
+        // Các hàng ghế A–J
         for (int r = 0; r < rows.length; r++) {
             gbc.gridy = r + 1;
             for (int c = 0; c <= maxCols; c++) {
@@ -162,30 +171,28 @@ public class GiaoDienChonGhe extends JFrame {
                     rowLabel.setPreferredSize(new Dimension(28, 28));
                     seatPanel.add(rowLabel, gbc);
                 } else {
-                	 String seatId = String.valueOf(rows[r]) + c;
-                	    JButton seatBtn = new JButton(seatId); 
-                	    seatBtn.setFont(new Font("SansSerif", Font.PLAIN, 11)); 
-                	    seatBtn.setPreferredSize(new Dimension(35, 35)); 
-                	    seatBtn.setMargin(new Insets(1, 1, 1, 1)); 
-                	    seatBtn.setFocusPainted(false);
-                	    seatBtn.setBackground(COLOR_AVAILABLE);
-                	    seatBtn.setOpaque(true);
+                    String seatId = String.valueOf(rows[r]) + c;
+                    JButton seatBtn = new JButton(seatId);
+                    seatBtn.setFont(new Font("SansSerif", Font.PLAIN, 11));
+                    seatBtn.setPreferredSize(new Dimension(35, 35));
+                    seatBtn.setMargin(new Insets(1, 1, 1, 1));
+                    seatBtn.setFocusPainted(false);
+                    seatBtn.setOpaque(true);
 
-                    
-                    boolean booked = ((r + c) % 11 == 0);
-                    if (booked) {
-                        seatBtn.setBackground(COLOR_BOOKED);
-                        seatBtn.setEnabled(false);
+                    Ghe g = seatIdMap.get(seatId);
+                    if (g != null && g.getTenGhe().contains(",")) {
+                        seatBtn.setBackground(Color.PINK); // Ghế đôi
                     } else {
-                        seatBtn.addActionListener(new SeatAction(seatId, seatBtn));
+                        seatBtn.setBackground(COLOR_AVAILABLE);
                     }
 
+
+                    seatBtn.addActionListener(new SeatAction(seatId, seatBtn));
                     seatButtons.put(seatId, seatBtn);
                     seatPanel.add(seatBtn, gbc);
                 }
             }
         }
-
 
         JScrollPane sp = new JScrollPane(seatPanel);
         sp.setBorder(BorderFactory.createTitledBorder("Sơ đồ ghế"));
@@ -195,13 +202,54 @@ public class GiaoDienChonGhe extends JFrame {
         // ===== CHÚ THÍCH =====
         JPanel legend = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
         legend.setBackground(COLOR_BG);
-
         legend.add(createLegendBox(COLOR_AVAILABLE, "Ghế trống"));
         legend.add(createLegendBox(COLOR_SELECTED, "Ghế đã chọn"));
         legend.add(createLegendBox(COLOR_BOOKED, "Ghế đã đặt"));
-
+        legend.add(createLegendBox(Color.PINK, "Ghế đôi")); // thêm legend ghế đôi
         wrapper.add(legend, BorderLayout.SOUTH);
+
         return wrapper;
+    }
+
+
+    // ===== CLASS ACTION CHO GHẾ ĐÔI =====
+    private class DoubleSeatAction implements ActionListener {
+        private char row;
+        private int col;
+        private JButton btn;
+
+        public DoubleSeatAction(char row, int col, JButton btn) {
+            this.row = row;
+            this.col = col;
+            this.btn = btn;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // Tìm cột đầu của cặp ghế đôi
+            int firstCol = col % 2 == 0 ? col - 1 : col;
+            String seatId1 = "" + row + firstCol;
+            String seatId2 = "" + row + (firstCol + 1);
+
+            JButton btn1 = seatButtons.get(seatId1);
+            JButton btn2 = seatButtons.get(seatId2);
+
+            if (selectedSeats.contains(seatId1)) {
+                // Bỏ chọn cả 2 ghế
+                selectedSeats.remove(seatId1);
+                selectedSeats.remove(seatId2);
+                if (btn1 != null) btn1.setBackground(Color.PINK);
+                if (btn2 != null) btn2.setBackground(Color.PINK);
+            } else {
+                // Chọn cả 2 ghế
+                selectedSeats.add(seatId1);
+                selectedSeats.add(seatId2);
+                if (btn1 != null) btn1.setBackground(COLOR_SELECTED);
+                if (btn2 != null) btn2.setBackground(COLOR_SELECTED);
+            }
+
+            updateSelectionCallback.run();
+        }
     }
 
     private JPanel createLegendBox(Color color, String text) {
@@ -330,14 +378,37 @@ public class GiaoDienChonGhe extends JFrame {
         btns.add(btnContinue);
         p.add(btns);
 
-        // ======= Callback cập nhật thông tin =======
+     // ======= Callback cập nhật thông tin =======
         this.updateSelectionCallback = () -> {
-            taSeats.setText(String.join(", ", selectedSeats));
-            lblTotal.setText("Tổng cộng: " + formatMoney(selectedSeats.size() * basePrice));
+            StringBuilder sb = new StringBuilder();
+            double total = 0;
+
+            Set<Ghe> countedGhe = new HashSet<>(); // để ghế đôi không bị tính 2 lần
+
+            for (String seatId : selectedSeats) {
+                Ghe g = seatIdMap.get(seatId);
+                if (g == null) continue;
+
+                if (g.getTenGhe().contains(",") && !countedGhe.contains(g)) {
+                    // Ghế đôi: 2 ghế + phụ thu
+                    total += 2 * basePrice + g.getLoaiGhe().getPhuThu();
+                    countedGhe.add(g);
+                    sb.append(g.getTenGhe()).append(", ");
+                } else if (!g.getTenGhe().contains(",")) {
+                    // Ghế thường
+                    total += basePrice;
+                    sb.append(seatId).append(", ");
+                }
+            }
+
+            // Xóa dấu ", " cuối cùng
+            if (sb.length() >= 2) sb.setLength(sb.length() - 2);
+
+            // Cập nhật text và tổng cộng
+            taSeats.setText(sb.toString());
+            lblTotal.setText("Tổng cộng: " + formatMoney(total));
             btnContinue.setEnabled(!selectedSeats.isEmpty());
         };
-        btnContinue.setEnabled(false);
-        updateSelectionCallback.run();
 
         return p;
     }
@@ -353,40 +424,65 @@ public class GiaoDienChonGhe extends JFrame {
     private class SeatAction implements ActionListener {
         private String seatId;
         private JButton btn;
+
         public SeatAction(String seatId, JButton btn) {
             this.seatId = seatId;
             this.btn = btn;
         }
+
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (selectedSeats.contains(seatId)) {
-                selectedSeats.remove(seatId);
-                btn.setBackground(COLOR_AVAILABLE);
+            // Lấy thông tin ghế
+            Ghe g = seatIdMap.get(seatId);
+            if (g == null) return;
+
+            // Kiểm tra nếu là ghế đôi
+            boolean isDouble = g.getLoaiGhe() != null && g.getLoaiGhe().getPhuThu() > 0;
+
+            if (isDouble) {
+                // Lấy danh sách ghế thực sự của ghế đôi
+                String[] pairSeats = g.getTenGhe().split(",");
+                boolean selected = selectedSeats.contains(pairSeats[0]);
+
+                if (selected) {
+                    // Bỏ chọn cả cặp
+                    for (String s : pairSeats) {
+                        selectedSeats.remove(s);
+                        JButton b = seatButtons.get(s);
+                        if (b != null) {
+                            // Nếu ghế là đôi -> màu hồng, nếu ghế thường -> màu trống
+                            if (g.getTenGhe().contains(",")) {
+                                b.setBackground(Color.PINK);
+                            } else {
+                                b.setBackground(COLOR_AVAILABLE);
+                            }
+                        }
+                    }
+                } else {
+                    // Chọn cả cặp
+                    for (String s : pairSeats) {
+                        selectedSeats.add(s);
+                        JButton b = seatButtons.get(s);
+                        if (b != null) b.setBackground(COLOR_SELECTED);
+                    }
+                }
             } else {
-                selectedSeats.add(seatId);
-                btn.setBackground(COLOR_SELECTED);
+                // Ghế thường
+                if (selectedSeats.contains(seatId)) {
+                    selectedSeats.remove(seatId);
+                    btn.setBackground(COLOR_AVAILABLE);
+                } else {
+                    selectedSeats.add(seatId);
+                    btn.setBackground(COLOR_SELECTED);
+                }
             }
+
             updateSelectionCallback.run();
         }
     }
 
     private void loadSuatChieu(int maPhim) {
-        Connection conn = null;
-    	try {
-            conn = ConnectDB.getConnection();
-            SuatChieuDAO suatChieuDAO = new SuatChieuDAO(conn);
-            this.listSuatChieu = suatChieuDAO.getAllSuatChieu(maPhim);
-        } catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-            try {
-                if (conn != null && !conn.isClosed()) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+    	SuatChieuDAO suatChieuDAO = new SuatChieuDAO();
+    	this.listSuatChieu = suatChieuDAO.getAllSuatChieu(maPhim);
     }
 }

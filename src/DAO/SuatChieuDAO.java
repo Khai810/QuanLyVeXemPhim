@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ConnectDB.ConnectDB;
 import Entity.Phim;
 import Entity.PhongChieu;
 import Entity.SuatChieu;
@@ -18,6 +19,16 @@ public class SuatChieuDAO {
 	PhimDAO phimDAO;
     PhongChieuDAO phongChieuDAO;
     
+    public SuatChieuDAO() {
+        try {
+            this.conn = ConnectDB.getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        this.phimDAO = new PhimDAO(conn);
+        this.phongChieuDAO = new PhongChieuDAO(conn);
+    }
+
 	public SuatChieuDAO(Connection conn) {
 		this.conn = conn;
 		this.phimDAO = new PhimDAO(conn);
