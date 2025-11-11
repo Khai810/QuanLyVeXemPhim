@@ -1,6 +1,5 @@
 package Entity;
 
-import java.util.List;
 
 public class PhongChieu {
 	private Integer maPhongChieu;

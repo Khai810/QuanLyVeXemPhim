@@ -10,13 +10,15 @@ public class HoaDon {
     private NhanVien nhanVien; // Quan hệ
     private Integer soLuongBap;
     private Integer soLuongNuoc;
+	private KhuyenMai khuyenMai;
+	private PhuongThucThanhToan phuongThucThanhToan;
 	
-    private final Double giaBap = 40.0;
-    private final Double giaNuoc = 20.0;
+    private final Double giaBap = 70000.0;
+    private final Double giaNuoc = 50000.0;
     
     
 	public HoaDon(Integer maHD, LocalDateTime ngayLapHoaDon, KhachHang khachHang, NhanVien nhanVien, Integer soLuongBap,
-			Integer soLuongNuoc) {
+			Integer soLuongNuoc, KhuyenMai khuyenMai, PhuongThucThanhToan phuongThucThanhToan) {
 		super();
 		this.maHD = maHD;
 		this.ngayLapHoaDon = ngayLapHoaDon;
@@ -24,6 +26,21 @@ public class HoaDon {
 		this.nhanVien = nhanVien;
 		this.soLuongBap = soLuongBap;
 		this.soLuongNuoc = soLuongNuoc;
+		this.khuyenMai = khuyenMai;
+		this.phuongThucThanhToan = phuongThucThanhToan;
+	}
+	
+	public Double tinhTong(List<ChiTietHoaDon> listCTHD) {
+		Double tong = 0.0;
+		for(ChiTietHoaDon chiTietHoaDon : listCTHD) {
+			tong += chiTietHoaDon.getDonGiaBan();
+		}
+		tong += soLuongBap * giaBap;
+		tong += soLuongNuoc * giaNuoc;
+		if(!khuyenMai.equals(null)) {
+			tong -= khuyenMai.getGiaTriKM();
+		}
+		return tong;
 	}
 
 	public HoaDon() {
@@ -76,6 +93,22 @@ public class HoaDon {
 
 	public void setSoLuongNuoc(Integer soLuongNuoc) {
 		this.soLuongNuoc = soLuongNuoc;
+	}
+
+	public KhuyenMai getKhuyenMai() {
+		return khuyenMai;
+	}
+
+	public void setKhuyenMai(KhuyenMai khuyenMai) {
+		this.khuyenMai = khuyenMai;
+	}
+
+	public PhuongThucThanhToan getPhuongThucThanhToan() {
+		return phuongThucThanhToan;
+	}
+
+	public void setPhuongThucThanhToan(PhuongThucThanhToan phuongThucThanhToan) {
+		this.phuongThucThanhToan = phuongThucThanhToan;
 	}
 	
 	

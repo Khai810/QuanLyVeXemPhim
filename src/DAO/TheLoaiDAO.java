@@ -5,16 +5,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import ConnectDB.ConnectDB;
 import Entity.TheLoai;
 
 public class TheLoaiDAO {
+
+	Connection conn;
+	
+	public TheLoaiDAO(Connection conn) {
+		this.conn = conn;
+	}
 	
 	public TheLoai layTheLoaiBangMaTheLoai(int maTheLoai) {
         String sql = "SELECT * FROM the_loai t WHERE t.maTheLoai = ?";
         
-        try (Connection conn = ConnectDB.getConnection();
-        		PreparedStatement pst = conn.prepareStatement(sql)){
+        try (PreparedStatement pst = conn.prepareStatement(sql)){
         	pst.setInt(1, maTheLoai);
             
         	try (ResultSet rs = pst.executeQuery()) {

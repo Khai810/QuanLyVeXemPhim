@@ -5,12 +5,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import ConnectDB.ConnectDB;
 import Entity.Ghe;
 import Entity.LoaiGhe;
 import Entity.PhongChieu;
 
 public class GheDAO {
+	Connection conn;
+	PhongChieuDAO phongChieuDAO;
+	
+	public GheDAO(Connection conn) {
+		this.conn = conn;
+		this.phongChieuDAO = new PhongChieuDAO(conn);
+	}
 	public Ghe layGheBangTenGhe(String tenGhe) {
 		String sql = "SELECT g.*, lg.*, pc.* " +
                 "FROM ghe g " +
@@ -18,8 +24,7 @@ public class GheDAO {
                 "LEFT JOIN phong_chieu pc ON g.maPhongChieu = pc.maPhongChieu " +
                 "WHERE g.tenGhe = ?";
         
-        try (Connection conn = ConnectDB.getConnection();
-        		PreparedStatement pst = conn.prepareStatement(sql)){
+        try (PreparedStatement pst = conn.prepareStatement(sql)){
         	pst.setString(1, tenGhe);
             
         	try (ResultSet rs = pst.executeQuery()) {
@@ -73,4 +78,33 @@ public class GheDAO {
         
         return null;
     }
+	
+	public Ghe layGhebangMaGhe(int maGhe) {
+		String sql = "SELECT * FROM ghe g LEFT JOIN loai_ghe lg ON g.maLoaiGhe = lg.maLoaiGhe  WHERE maGhe = ? ";
+		Ghe ghe = null;
+
+	    try (PreparedStatement pst = conn.prepareStatement(sql)) {
+
+	        pst.setInt(1, maGhe);
+
+	        try (ResultSet rs = pst.executeQuery()) {
+	            if (rs.next()) {
+	            	ghe = new Ghe();
+	            	ghe.setMaGhe(rs.getInt("maGhe"));
+	            	ghe.setTenGhe(rs.getString("tenGhe"));
+	            	ghe.setLoaiGhe(new LoaiGhe(rs.getInt("maLoaiGhe")
+	            			, rs.getString("tenLoaiGhe"), rs.getString("moTa")
+	            			, rs.getDouble("phuThu")));
+	            	PhongChieu phongChieu = phongChieuDAO.layPhongChieuBangMaPhongChieu(rs.getInt("maPhongChieu"));
+	            	
+	            	ghe.setPhongChieu(phongChieu);
+	                return ghe;
+	            }
+	        }
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return ghe;
+	}
 }

@@ -7,13 +7,22 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import ConnectDB.ConnectDB;
 import Entity.Phim;
 import Entity.PhongChieu;
 import Entity.SuatChieu;
 import Entity.TheLoai;
 
 public class SuatChieuDAO {
+	
+	Connection conn;
+	PhimDAO phimDAO;
+    PhongChieuDAO phongChieuDAO;
+    
+	public SuatChieuDAO(Connection conn) {
+		this.conn = conn;
+		this.phimDAO = new PhimDAO(conn);
+		this.phongChieuDAO = new PhongChieuDAO(conn);
+	}
 	
 	public List<SuatChieu> getAllSuatChieu(Integer maPhim){
 		List<SuatChieu> list = new ArrayList<SuatChieu>();
@@ -31,8 +40,7 @@ public class SuatChieuDAO {
                 "WHERE sc.maPhim = ? " +
                 "ORDER BY sc.gioChieu ASC";
 		
-		try(Connection conn = ConnectDB.getConnection();
-				PreparedStatement pst = conn.prepareStatement(sql)){
+		try(PreparedStatement pst = conn.prepareStatement(sql)){
 			pst.setInt(1, maPhim);
 			try(ResultSet rs = pst.executeQuery()){
 				while (rs.next()) {
@@ -89,5 +97,39 @@ public class SuatChieuDAO {
 			e.printStackTrace();
 		}
 		return list;
+	}
+    
+	public SuatChieu laySuatChieuBangMa(int maSuatChieu) {
+		String sql = "SELECT * FROM suat_chieu WHERE maSuatChieu = ?";
+	    SuatChieu sc = null;
+
+	    try (PreparedStatement pst = conn.prepareStatement(sql)) {
+
+	        pst.setInt(1, maSuatChieu);
+
+	        try (ResultSet rs = pst.executeQuery()) {
+	            if (rs.next()) {
+	                sc = new SuatChieu();
+	                sc.setMaSuatChieu(rs.getInt(1));
+	                sc.setNgayChieu(rs.getDate(4).toLocalDate());
+	                sc.setGioChieu(rs.getTime(5).toLocalTime());
+	                sc.setGiaVeCoBan(rs.getDouble(6));
+
+	                int maPhim = rs.getInt("maPhim");
+	                int maPhongChieu = rs.getInt("maPhongChieu");
+
+	                Phim phim = phimDAO.layPhimBangMaPhim(maPhim);
+	                PhongChieu phongChieu = phongChieuDAO.layPhongChieuBangMaPhongChieu(maPhongChieu);
+	                
+	                sc.setPhim(phim);
+	                sc.setPhongChieu(phongChieu);
+	                return sc;
+	            }
+	        }
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return sc;
 	}
 }

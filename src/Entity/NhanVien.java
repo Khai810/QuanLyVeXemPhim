@@ -3,16 +3,16 @@ package Entity;
 public class NhanVien {
 	private Integer maNhanVien;
     private String tenNhanVien;
-    private String sdt;
+    private String SDT;
     private String email;
     private String taiKhoan;
     private String matKhau;
     
-	public NhanVien(Integer maNhanVien, String tenNhanVien, String sdt, String email, String taiKhoan, String matKhau) {
+	public NhanVien(Integer maNhanVien, String tenNhanVien, String SDT, String email, String taiKhoan, String matKhau) {
 		super();
 		this.maNhanVien = maNhanVien;
 		this.tenNhanVien = tenNhanVien;
-		this.sdt = sdt;
+		this.SDT = SDT;
 		this.email = email;
 		this.taiKhoan = taiKhoan;
 		this.matKhau = matKhau;
@@ -38,12 +38,12 @@ public class NhanVien {
 		this.tenNhanVien = tenNhanVien;
 	}
 
-	public String getSdt() {
-		return sdt;
+	public String getSDT() {
+		return SDT;
 	}
 
-	public void setSdt(String sdt) {
-		this.sdt = sdt;
+	public void setSDT(String SDT) {
+		this.SDT = SDT;
 	}
 
 	public String getEmail() {

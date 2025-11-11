@@ -3,8 +3,10 @@ package GUI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Date;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -13,23 +15,41 @@ import java.util.Set;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+import ConnectDB.ConnectDB;
+import DAO.ChiTietHoaDonDAO;
 import DAO.GheDAO;
+import DAO.HoaDonDAO;
+import DAO.KhachHangDAO;
+import DAO.KhuyenMaiDAO;
+import DAO.PhuongThucThanhToanDAO;
 import DAO.VeDAO;
 import Entity.Ghe;
+import Entity.HoaDon;
+import Entity.KhachHang;
+import Entity.KhuyenMai;
+import Entity.NhanVien;
 import Entity.Phim;
+import Entity.PhuongThucThanhToan;
 import Entity.SuatChieu;
 import Entity.Ve;
 
 public class GiaoDienThanhToan extends JFrame implements ActionListener{
 	private static final long serialVersionUID = 1L;
 	JPanel pNorth, pWest, pCen, pnlTamTinh;
-	JLabel lblThanhToan, lblThongTinVe, lblThongTinKH, lblBapNuoc;
-	JTextField txtTenKH, txtSDT, txtBap, txtNuoc;
-	JButton btnTao, btnQuayLai, btnTangBap, btnGiamBap, btnTangNuoc, btnGiamNuoc;
+	JSplitPane spnCen;
+	JLabel lblThanhToan, lblThongTinVe, lblThongTinKH, lblBapNuoc, lblThongBaoKM;
+	JTextField txtTenKH, txtSDT, txtBap, txtNuoc, txtKM;
+	JButton btnTao, btnQuayLai, btnTangBap, btnGiamBap, btnTangNuoc, btnGiamNuoc, btnKTKM;
+	JComboBox<String> cbxPTTT;
 	SuatChieu suatChieuDaChon;
 	Set<String> gheDaChon;
+	private KhuyenMai khuyenMaiHopLe = null;
+	List<PhuongThucThanhToan> listPTTT = null;
+	// mock NV
+	NhanVien nhanVien = new NhanVien(1, "nhan vien ban ve", "0123456789", "nv@gmail.com", "admin", "admin");
 	
 	LoadHinhAnh load = new LoadHinhAnh();
+	
 	
 	private final String imgBap = "/img/bap.jpg";
 	private final String imgNuoc = "/img/nuoc.jpg";
@@ -37,7 +57,7 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
 	private final Color COLOR_BG = Color.WHITE;
 	private final Font fontTieuDe = new Font("Arial", Font.BOLD, 19);
 	private final Font fontChu = new Font("Arial", Font.PLAIN, 14);
-	private final Dimension POSTER_SIZE = new Dimension(260, 350);
+	private final Dimension POSTER_SIZE = new Dimension(340, 450);
 	private final Dimension BAP_NUOC_SIZE = new Dimension(50, 50);
 	
 	private final double GIA_BAP = 70000;
@@ -62,10 +82,13 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
 		
 		pCen = panelThanhToan();
 		pCen.setBackground(COLOR_BG);
+
+		spnCen = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pWest, pCen);
+		spnCen.setDividerLocation(400); 
 		
 		add(pNorth, BorderLayout.NORTH);
-		add(pWest, BorderLayout.WEST);
-		add(pCen, BorderLayout.CENTER);
+		add(spnCen, BorderLayout.CENTER);
+		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setSize(1400, 800);
 		setLocationRelativeTo(null); // Căn giữa màn hình
@@ -85,7 +108,7 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
 
         // ======= Poster phim =======
         JLabel poster = new JLabel("<html><center>Poster<br>không có</center></html>", JLabel.CENTER);
-        poster.setPreferredSize(new Dimension(260, 350));
+        poster.setPreferredSize(POSTER_SIZE);
         poster.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         poster.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -103,9 +126,6 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
         String daoDien = (phim != null && phim.getDaoDien() != null) ? phim.getDaoDien() : "—";
         String doTuoi = (phim != null && phim.getDoTuoi() != null) ? phim.getDoTuoi() : "—";
         int thoiLuong = (phim != null && phim.getThoiLuong() > 0) ? phim.getThoiLuong() : 0;
-        String gioChieu = (suatChieuDaChon != null && suatChieuDaChon.getGioChieu() != null)
-                ? suatChieuDaChon.getGioChieu().toString()
-                : "";
 
         JLabel lblTitle = new JLabel(tenPhim);
         lblTitle.setFont(new Font("SansSerif", Font.BOLD, 17));
@@ -188,13 +208,13 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
         
         
         pnlThanhToan.add(createFoodItemPanel("Bắp rang", imgBap, txtBap, btnTangBap, btnGiamBap, GIA_BAP));
-        
         pnlThanhToan.add(Box.createRigidArea(new Dimension(0, 5)));
 
         pnlThanhToan.add(createFoodItemPanel("Nước ngọt", imgNuoc, txtNuoc, btnTangNuoc, btnGiamNuoc, GIA_NUOC));
-        
-        pnlTamTinh = new JPanel(); // pnlTamTinh bây giờ là biến thành viên
-        pnlTamTinh.setLayout(new BorderLayout()); // Dùng BorderLayout để dễ dàng thay thế
+        pnlThanhToan.add(Box.createRigidArea(new Dimension(0, 90)));
+
+        pnlTamTinh = new JPanel();
+        pnlTamTinh.setLayout(new BorderLayout()); 
         pnlTamTinh.setBackground(COLOR_BG);
         pnlTamTinh.setAlignmentX(Component.LEFT_ALIGNMENT);
         
@@ -236,20 +256,50 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
         
         JLabel lblTenKH = new JLabel("Tên khách hàng:");
         JLabel lblSDT = new JLabel("Số điện thoại:");
+        JLabel lblPTTT = new JLabel("Phương thức thanh toán:");
+        JLabel lblKM = new JLabel("Mã khuyến mãi:");
+        
+        lblPTTT.setFont(fontChu);
+        lblTenKH.setFont(fontChu);
+        lblSDT.setFont(fontChu);
+        lblKM.setFont(fontChu);
         
         pnlLabels.add(lblTenKH);
         pnlLabels.add(lblSDT);
-
+        pnlLabels.add(lblPTTT);
+        pnlLabels.add(lblKM);
+        
         // Cột 2: Chứa các ô nhập (JTextField)
         JPanel pnlFields = new JPanel(new GridLayout(0, 1, 5, 5));
         pnlFields.setBackground(COLOR_BG);
         
+        this.listPTTT = loadPTTT();
+        
         txtTenKH = new JTextField();
         txtSDT = new JTextField();
+        cbxPTTT = new JComboBox<>(listPTTT.stream().map(PhuongThucThanhToan::getTenPTTT).toArray(String[]::new));
+        
+        JPanel pnlKM = new JPanel();
+        pnlKM.setLayout(new BoxLayout(pnlKM, BoxLayout.X_AXIS));
+        pnlKM.setBackground(COLOR_BG);
+        txtKM = new JTextField(10);
+        btnKTKM = new JButton("Kiểm tra");
+        btnKTKM.addActionListener(this);
+        
+        lblThongBaoKM = new JLabel("");
+        lblThongBaoKM.setFont(new Font("Arial", Font.ITALIC, 12));
+        lblThongBaoKM.setForeground(Color.GRAY);
+        
+        pnlKM.add(txtKM);
+        pnlKM.add(btnKTKM);
+        pnlKM.add(Box.createRigidArea(new Dimension(10, 0)));
+        pnlKM.add(lblThongBaoKM);
         
         pnlFields.add(txtTenKH);
         pnlFields.add(txtSDT);
-
+        pnlFields.add(cbxPTTT);
+        pnlFields.add(pnlKM);
+        
         // Ghép 2 cột lại
         pnlForm.add(pnlLabels, BorderLayout.WEST);
         pnlForm.add(pnlFields, BorderLayout.CENTER);
@@ -273,6 +323,7 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
         
         // Tên
         JLabel lblTen = new JLabel(tenMon);
+        lblTen.setFont(fontChu);
         lblTen.setPreferredSize(new Dimension(100, 30)); // Đặt kích thước cố định
         box.add(lblTen);
         
@@ -320,6 +371,12 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
 
 	    double tongTien = tongVe + tongBap + tongNuoc;
 
+	    double giamKM = 0;
+	    if (khuyenMaiHopLe != null) {
+	        giamKM = khuyenMaiHopLe.getGiaTriKM(); // nếu là số tiền trực tiếp
+	        tongTien -= giamKM;
+	    }
+	    
 	    // --- 2. Thêm các hàng vào panel ---
 	    
 	    // Tiêu đề
@@ -336,15 +393,20 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
 
 	    // Hàng 2: Bắp (Chỉ hiển thị nếu có)
 	    if (soLuongBap > 0) {
-	        String bapLabel = String.format("Bắp rang (x%d)", soLuongBap);
-	        pnlTamTinh.add(createTotalRow(bapLabel, formatMoney(tongBap), false));
+	        String lblBap = String.format("Bắp rang (x%d)", soLuongBap);
+	        pnlTamTinh.add(createTotalRow(lblBap, formatMoney(tongBap), false));
 	        pnlTamTinh.add(Box.createRigidArea(new Dimension(0, 5)));
 	    }
 
 	    // Hàng 3: Nước (Chỉ hiển thị nếu có)
 	    if (soLuongNuoc > 0) {
-	        String nuocLabel = String.format("Nước ngọt (x%d)", soLuongNuoc);
-	        pnlTamTinh.add(createTotalRow(nuocLabel, formatMoney(tongNuoc), false));
+	        String lblNuoc = String.format("Nước ngọt (x%d)", soLuongNuoc);
+	        pnlTamTinh.add(createTotalRow(lblNuoc, formatMoney(tongNuoc), false));
+	    }
+	    
+	    if (giamKM > 0) {
+	        pnlTamTinh.add(createTotalRow("Khuyến mãi", "- " + formatMoney(giamKM), false));
+	        pnlTamTinh.add(Box.createRigidArea(new Dimension(0, 5)));
 	    }
 
 	    // --- 3. Dòng tổng cộng ---
@@ -389,15 +451,15 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
 
 	    JLabel lblLabel = new JLabel(labelText);
 	    JLabel lblValue = new JLabel(valueText);
-
+	    
+	    lblLabel.setFont(fontChu);
+	    lblValue.setFont(fontChu);
+	    
 	    // In đậm nếu là hàng tổng
 	    if (isBold) {
 	        Font boldFont = lblLabel.getFont().deriveFont(Font.BOLD, 14f);
 	        lblLabel.setFont(boldFont);
 	        lblValue.setFont(boldFont);
-	    } else {
-	        lblLabel.setFont(lblLabel.getFont().deriveFont(Font.PLAIN, 12f));
-	        lblValue.setFont(lblValue.getFont().deriveFont(Font.PLAIN, 12f));
 	    }
 
 	    row.add(lblLabel);
@@ -414,8 +476,6 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
         return nf.format(Math.round(v)) + " đ";
     }
 
-	
-	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
@@ -444,28 +504,147 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
 				updateTamTinhPanel();
 			}
 		} 
+		if(event.equals(btnKTKM)) {
+			Connection conn = null;
+			try {
+				conn = ConnectDB.getConnection();
+				KhuyenMaiDAO khuyenMaiDAO = new KhuyenMaiDAO(conn);
+				String code = txtKM.getText().trim();
+	            System.out.print(code);
+
+		        if (code.isEmpty()) {
+		            lblThongBaoKM.setText("Vui lòng nhập mã khuyến mãi!");
+		            lblThongBaoKM.setForeground(Color.GRAY);
+		            khuyenMaiHopLe = null;
+		            updateTamTinhPanel();
+		            return;
+		        }
+
+		        KhuyenMai km = khuyenMaiDAO.findByCode(code);
+		        if (km != null) { //them rang buọc  
+		            khuyenMaiHopLe = km;
+		            lblThongBaoKM.setText("✅ Mã hợp lệ: Giảm " + formatMoney(km.getGiaTriKM()));
+		            lblThongBaoKM.setForeground(new Color(0, 128, 0));
+		            System.out.print(km.getGiaTriKM());
+		        } else {
+		            khuyenMaiHopLe = null;
+		            lblThongBaoKM.setText("❌ Mã không hợp lệ hoặc đã hết hạn!");
+		            lblThongBaoKM.setForeground(Color.RED);
+		        }
+
+		        updateTamTinhPanel(); // Cập nhật lại tạm tính
+		    } catch (SQLException ex) {
+		        ex.printStackTrace();
+		        lblThongBaoKM.setText("❌ Lỗi khi kiểm tra mã!");
+		        lblThongBaoKM.setForeground(Color.RED);
+		    } finally {
+		        try { if (conn != null) conn.close(); } catch (SQLException e2) { e2.printStackTrace(); }
+		    }
+		}
 		if(event.equals(btnTao)) {
-			// Xử lý tạo ghế -> vé -> hóa đơn -> ct hóa đơn
-			VeDAO veDAO = new VeDAO();
-			GheDAO gheDAO = new GheDAO();
-			List<Ve> listVe = new ArrayList<Ve>();
-			List<Ghe> listGhe = new ArrayList<Ghe>();
-			
-			for(String tenGhe : gheDaChon) {
-				Ghe ghe = gheDAO.layGheBangTenGhe(tenGhe);
-				listGhe.add(ghe);
-			}
-			
-			for(Ghe ghe: listGhe) {
-				Ve ve = new Ve(9999, suatChieuDaChon, ghe, suatChieuDaChon.getGiaVeCoBan(), LocalDate.now()
-						, suatChieuDaChon.getNgayChieu(), suatChieuDaChon.getGioChieu(), ghe.getTenGhe()
-						, suatChieuDaChon.getPhongChieu().getTenPhong());
-				listVe.add(ve);
-			}
-			System.out.print("tao ve");
-			veDAO.taoSetVe(listVe);
+			Connection conn = null;
+			try {
+		        conn = ConnectDB.getConnection();
+		        conn.setAutoCommit(false);
+		        List<Ve> listVe = taoVe(conn);
+		        
+		        HoaDon hd = taoHoaDon(listVe, conn);
+		        conn.commit();
+		        
+		        GiaoDienDatVeThanhCong frm = new GiaoDienDatVeThanhCong(hd, listVe);
+		        frm.setVisible(true);
+		        dispose();
+			}catch (Exception ex) {
+				try { if (conn != null) conn.rollback(); } catch (SQLException e1) { e1.printStackTrace(); }
+				ex.printStackTrace();
+		    } finally {
+		        try { if (conn != null) conn.close(); } catch (SQLException e2) { e2.printStackTrace(); }
+		    }
+		}
+		if(event.equals(btnQuayLai)) {
+			GiaoDienChonGhe frm = new GiaoDienChonGhe(suatChieuDaChon.getPhim());
+		    frm.setVisible(true);
+		    dispose();
 		}
 	}
 
+	private List<Ve> taoVe(Connection conn) throws SQLException {
+	    VeDAO veDAO = new VeDAO(conn);
+	    GheDAO gheDAO = new GheDAO(conn);
+
+	    List<Ve> listVe = new ArrayList<>();
+	    List<Ghe> listGhe = new ArrayList<>();
+
+	    for (String tenGhe : gheDaChon) {
+	        Ghe ghe = gheDAO.layGheBangTenGhe(tenGhe);
+	        if (ghe != null) {
+	            listGhe.add(ghe);
+	        }
+	    }
+
+	    for (Ghe ghe : listGhe) {
+	        Ve ve = new Ve(
+	            9999,
+	            suatChieuDaChon,
+	            ghe,
+	            suatChieuDaChon.getGiaVeCoBan(),
+	            LocalDate.now(),
+	            suatChieuDaChon.getNgayChieu(),
+	            suatChieuDaChon.getGioChieu(),
+	            ghe.getTenGhe(),
+	            suatChieuDaChon.getPhongChieu().getTenPhong()
+	        );
+	        listVe.add(ve);
+	    }
+
+	    veDAO.taoListVe(listVe);
+	    return listVe;
+	}
 	
+	private HoaDon taoHoaDon(List<Ve> listVe, Connection conn) {
+		// KH, NV -> HD
+		KhachHangDAO khachHangDAO = new KhachHangDAO(conn);
+		HoaDonDAO hoaDonDAO = new HoaDonDAO(conn);
+		
+		String ptttDaChon = (String) cbxPTTT.getSelectedItem();
+		PhuongThucThanhToan phuongThucThanhToan = null;
+		
+		for(PhuongThucThanhToan pttt : listPTTT) {
+			if(pttt.getTenPTTT().equals(ptttDaChon)) {
+				phuongThucThanhToan = pttt;
+				break;
+			}
+		}
+		System.out.print(ptttDaChon);
+		
+		KhachHang khachHang = new KhachHang(9999, txtTenKH.getText(), txtSDT.getText());
+		if(!khachHangDAO.insertKhachHang(khachHang)) {
+			System.out.print("loi khi tao KH" + khachHang.getMaKH());
+			return null;
+		}
+		
+		HoaDon hd = new HoaDon(9999, LocalDateTime.now(), khachHang, nhanVien, soLuongBap, soLuongNuoc, khuyenMaiHopLe, phuongThucThanhToan);
+		if(!hoaDonDAO.taoHoaDon(hd)) {
+			System.out.print("loi khi tao HD");
+			return null;
+		}
+		
+		ChiTietHoaDonDAO chiTietHoaDonDAO = new ChiTietHoaDonDAO(conn);
+		chiTietHoaDonDAO.taoChiTietHoaDon(hd, listVe);
+		
+		return hd;
+	}
+	
+	private List<PhuongThucThanhToan> loadPTTT() {
+		Connection conn = null;
+		try {
+			conn = ConnectDB.getConnection();
+			PhuongThucThanhToanDAO phuongThucThanhToanDAO = new PhuongThucThanhToanDAO(conn);
+			return phuongThucThanhToanDAO.getAll();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

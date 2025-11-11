@@ -2,11 +2,15 @@ package GUI;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+
+import ConnectDB.ConnectDB;
 import GUI.GiaoDienChonPhim;
 import DAO.SuatChieuDAO;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -367,7 +371,22 @@ public class GiaoDienChonGhe extends JFrame {
     }
 
     private void loadSuatChieu(int maPhim) {
-    	SuatChieuDAO suatChieuDAO = new SuatChieuDAO();
-    	this.listSuatChieu = suatChieuDAO.getAllSuatChieu(maPhim);
+        Connection conn = null;
+    	try {
+            conn = ConnectDB.getConnection();
+            SuatChieuDAO suatChieuDAO = new SuatChieuDAO(conn);
+            this.listSuatChieu = suatChieuDAO.getAllSuatChieu(maPhim);
+        } catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+            try {
+                if (conn != null && !conn.isClosed()) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

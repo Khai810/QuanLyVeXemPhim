@@ -26,16 +26,12 @@ public class ConnectDB {
 			e.printStackTrace();
 		}
 	}
-	public static Connection getConnection() {
-        try {
-            if (con == null || con.isClosed()) {
-                instance.connect();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            instance.connect();
-        }
-        return con;
+	
+	public static Connection getConnection() throws SQLException {
+		String url = "jdbc:sqlserver://localhost:1433;databaseName=rap";
+		String user = "sa";
+		String password = "StrongP@ssw0rd";
+        return DriverManager.getConnection(url, user, password);
     }
     
     public void disconnect() {

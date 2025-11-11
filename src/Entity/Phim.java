@@ -1,7 +1,6 @@
 package Entity;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public class Phim {
 	private Integer maPhim;
