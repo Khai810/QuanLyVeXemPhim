@@ -1,9 +1,11 @@
 package DAO;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -143,4 +145,49 @@ public class SuatChieuDAO {
 	    }
 	    return sc;
 	}
+	
+	 // Thêm suất chiếu
+    public boolean insert(SuatChieu sc) {
+        String sql = "INSERT INTO suat_chieu(maPhim, maPhongChieu, ngayChieu, gioChieu, giaVeCoBan) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement pst = conn.prepareStatement(sql)) {
+            pst.setInt(1, sc.getPhim().getMaPhim());
+            pst.setInt(2, sc.getPhongChieu().getMaPhongChieu());
+            pst.setDate(3, Date.valueOf(sc.getNgayChieu()));
+            pst.setTime(4, Time.valueOf(sc.getGioChieu()));
+            pst.setDouble(5, sc.getGiaVeCoBan());
+            return pst.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Cập nhật suất chiếu
+    public boolean update(SuatChieu sc) {
+        String sql = "UPDATE suat_chieu SET maPhim=?, maPhongChieu=?, ngayChieu=?, gioChieu=?, giaVeCoBan=? WHERE maSuatChieu=?";
+        try (PreparedStatement pst = conn.prepareStatement(sql)) {
+            pst.setInt(1, sc.getPhim().getMaPhim());
+            pst.setInt(2, sc.getPhongChieu().getMaPhongChieu());
+            pst.setDate(3, Date.valueOf(sc.getNgayChieu()));
+            pst.setTime(4, Time.valueOf(sc.getGioChieu()));
+            pst.setDouble(5, sc.getGiaVeCoBan());
+            pst.setInt(6, sc.getMaSuatChieu());
+            return pst.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Xóa suất chiếu
+    public boolean delete(int maSuatChieu) {
+        String sql = "DELETE FROM suat_chieu WHERE maSuatChieu=?";
+        try (PreparedStatement pst = conn.prepareStatement(sql)) {
+            pst.setInt(1, maSuatChieu);
+            return pst.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

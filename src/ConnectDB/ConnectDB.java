@@ -15,9 +15,9 @@ public class ConnectDB {
 	}
 	
 	public void connect() {
-		String url = "jdbc:sqlserver://localhost:1433;databaseName=rap";
+		String url = "jdbc:sqlserver://localhost\\SQLEXPRESS;databaseName=rap";
 		String user = "sa";
-		String password = "StrongP@ssw0rd";
+		String password = "sapassword";
 		try {
 			con = DriverManager.getConnection(url, user, password);
 		}
@@ -28,9 +28,9 @@ public class ConnectDB {
 	}
 	
 	public static Connection getConnection() throws SQLException {
-		String url = "jdbc:sqlserver://localhost:1433;databaseName=rap";
+		String url = "jdbc:sqlserver://localhost\\SQLEXPRESS;databaseName=rap";
 		String user = "sa";
-		String password = "StrongP@ssw0rd";
+		String password = "sapassword";
         return DriverManager.getConnection(url, user, password);
     }
     

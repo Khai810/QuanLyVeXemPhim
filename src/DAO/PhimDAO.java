@@ -62,7 +62,31 @@ public class PhimDAO {
         
         return listPhim;
     }
-	
+	public List<Phim> searchPhim(String tuKhoa) {
+	    List<Phim> list = new ArrayList<>();
+	    String sql = "SELECT * FROM phim WHERE tenPhim LIKE ?";
+	    try (PreparedStatement pst = conn.prepareStatement(sql)) {
+	        pst.setString(1, "%" + tuKhoa + "%");
+	        try (ResultSet rs = pst.executeQuery()) {
+	            while (rs.next()) {
+	                Phim p = new Phim();
+	                p.setMaPhim(rs.getInt("maPhim"));
+	                p.setTenPhim(rs.getString("tenPhim"));
+	                p.setDaoDien(rs.getString("daoDien"));
+	                p.setQuocGia(rs.getString("quocGia"));
+	                p.setDoTuoi(rs.getString("doTuoi"));
+	                p.setThoiLuong(rs.getInt("thoiLuong"));
+	                p.setNgayKhoiChieu(rs.getDate("ngayKhoiChieu") != null ? rs.getDate("ngayKhoiChieu").toLocalDate() : null);
+	                // Gán các trường khác nếu cần
+	                list.add(p);
+	            }
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return list;
+	}
+
     // Thêm phim, trả về maPhim vừa tạo (identity)
     public Integer insert(Phim p) throws SQLException {
         String sql = "INSERT INTO phim(tenPhim, moTa, doTuoi, quocGia, thoiLuong, daoDien, ngayKhoiChieu, img, maTheLoai) " +

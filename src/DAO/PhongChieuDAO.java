@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import Entity.PhongChieu;
 
@@ -13,7 +15,24 @@ public class PhongChieuDAO {
 	public PhongChieuDAO(Connection conn) {
 		this.conn = conn;
 	}
-	
+	public List<PhongChieu> getAllPhongChieu() {
+	    List<PhongChieu> list = new ArrayList<>();
+	    String sql = "SELECT * FROM phong_chieu";
+	    try (PreparedStatement pst = conn.prepareStatement(sql);
+	         ResultSet rs = pst.executeQuery()) {
+	        while (rs.next()) {
+	            PhongChieu pc = new PhongChieu();
+	            pc.setMaPhongChieu(rs.getInt("maPhongChieu"));
+	            pc.setTenPhong(rs.getString("tenPhong"));
+	            pc.setSoLuongGhe(rs.getInt("soLuongGhe"));
+	            list.add(pc);
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return list;
+	}
+
 	public PhongChieu layPhongChieuBangMaPhongChieu(int maPhongChieu) {
 		String sql = "SELECT * FROM phong_chieu WHERE maPhongChieu = ?";
 	    PhongChieu phongChieu = null;

@@ -112,5 +112,20 @@ public class Phim {
 	public void setTheLoai(TheLoai theLoai) {
 		this.theLoai = theLoai;
 	}
-	
+	@Override
+	public boolean equals(Object obj) {
+	    if (this == obj) return true;
+	    if (!(obj instanceof Phim)) return false;
+	    Phim other = (Phim) obj;
+	    return this.maPhim != null && this.maPhim.equals(other.maPhim);
+	}
+
+	@Override
+	public int hashCode() {
+	    return maPhim != null ? maPhim.hashCode() : 0;
+	}
+	@Override
+	public String toString() {
+	    return tenPhim; 
+	}
 }

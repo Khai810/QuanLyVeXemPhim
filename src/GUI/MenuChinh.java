@@ -1,8 +1,22 @@
 package GUI; // Hoặc package của bạn
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+
+import DAO.SuatChieuDAO;
+import Entity.Phim;
+import Entity.SuatChieu;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
+import java.util.Locale;
 
 public class MenuChinh extends JMenuBar {
 	JMenu menuVe, menuNhanVien, menuSuatChieu, menuPhongChieu, menuHoaDon, menuPhim;
@@ -40,6 +54,12 @@ public class MenuChinh extends JMenuBar {
         // Menu Suất Chiếu
         menuSuatChieu = new JMenu("Suất Chiếu");
         itemQuanLySuatChieu = new JMenuItem("Quản lý suất chiếu");
+        itemQuanLySuatChieu.addActionListener(e -> {
+            GiaoDienQuanLySuatChieu panel = new GiaoDienQuanLySuatChieu();
+            parentFrame.setContentPane(panel);
+            parentFrame.revalidate();
+            parentFrame.repaint();
+        });
         menuSuatChieu.add(itemQuanLySuatChieu);
         
         // Menu Phòng Chiếu
@@ -108,4 +128,5 @@ public class MenuChinh extends JMenuBar {
         this.add(menuPhim);
 
     }
+    
 }

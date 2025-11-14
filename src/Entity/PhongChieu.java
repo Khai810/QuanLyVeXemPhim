@@ -41,5 +41,21 @@ public class PhongChieu {
 	public void setSoLuongGhe(Integer soLuongGhe) {
 		this.soLuongGhe = soLuongGhe;
 	}
-    
+	@Override
+	public boolean equals(Object obj) {
+	    if (this == obj) return true;
+	    if (!(obj instanceof PhongChieu)) return false;
+	    PhongChieu other = (PhongChieu) obj;
+	    return this.maPhongChieu != null && this.maPhongChieu.equals(other.maPhongChieu);
+	}
+
+	@Override
+	public int hashCode() {
+	    return maPhongChieu != null ? maPhongChieu.hashCode() : 0;
+	}
+
+	@Override
+	public String toString() {
+	    return tenPhong; 
+	}
 }
