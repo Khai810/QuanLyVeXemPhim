@@ -32,6 +32,7 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
     private JComboBox<PhuongThucThanhToan> cboPTTT = new JComboBox<>();
 
     private JTextField txtSearch = new JTextField();
+    private JPanel topRight;
 
     private DefaultTableModel model = new DefaultTableModel(
         new Object[]{"Mã HĐ", "Ngày lập", "Khách hàng", "Nhân viên",
@@ -54,6 +55,7 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
     // Buttons
     private JButton btnFind, btnReload;
     private JButton btnXoaRong, btnSave, btnUpdate, btnDelete;
+    private static final Font fontChu = new Font("Segoe UI", Font.BOLD, 14);
 
 	private static final Color PRI_COLOR = new Color(252, 247, 223);
     private static final Color SEC_COLOR = new Color(253, 252, 241);
@@ -141,9 +143,13 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
         top.setResizeWeight(1);
         
         JPanel formPanel = buildFormPanel();
+        topRight = new JPanel(new BorderLayout());
+        topRight.setBackground(SEC_COLOR);
+        topRight.setPreferredSize(new Dimension(550,710));
 
         top.setLeftComponent(formPanel);
-
+        top.setRightComponent(topRight);
+        
         JScrollPane tableScroll = new JScrollPane(table);
         tableScroll.setBorder(new EmptyBorder(10, 20, 10, 20));
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -302,8 +308,20 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
 
         try {
             hoaDonDAO.capNhatHoaDon(h);
-            JOptionPane.showMessageDialog(this, "Đã cập nhật");
             reloadTable();
+            
+            List<ChiTietHoaDon> listCTHD = new ChiTietHoaDonDAO(conn).layChitiethoadon(h.getMaHD());
+            JPanel pnlHoaDon = taopnlhoaDon(h, listCTHD);
+            // Xóa nội dung cũ
+            topRight.removeAll();
+            // Thêm hóa đơn mới
+            topRight.add(new JScrollPane(pnlHoaDon), BorderLayout.CENTER);
+
+            // Cập nhật UI
+            topRight.revalidate();
+            topRight.repaint();
+            JOptionPane.showMessageDialog(this, "Đã cập nhật");
+
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Lỗi cập nhật: " + e.getMessage());
         }
@@ -345,6 +363,20 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
         cboNhanVien.setSelectedItem(h.getNhanVien());
         cboKhuyenMai.setSelectedItem(h.getKhuyenMai());
         cboPTTT.setSelectedItem(h.getPhuongThucThanhToan());
+        
+        List<ChiTietHoaDon> listCTHD = new ChiTietHoaDonDAO(conn).layChitiethoadon(h.getMaHD());
+        JPanel pnlHoaDon = taopnlhoaDon(h, listCTHD);
+
+        // Xóa nội dung cũ
+        topRight.removeAll();
+        // Thêm hóa đơn mới
+        topRight.add(new JScrollPane(pnlHoaDon), BorderLayout.CENTER);
+
+        // Cập nhật UI
+        topRight.revalidate();
+        topRight.repaint();
+
+
     }
 
     private void clearForm() {
@@ -407,4 +439,166 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
     	btn.setContentAreaFilled(true);
     	return btn;
     }
+    
+    private int addDongKe(JPanel pnl, GridBagConstraints gbc, int viTri) {
+        JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
+        
+        // Lưu lại các cài đặt GBC cũ
+        int originalGridWidth = gbc.gridwidth;
+        int originalFill = gbc.fill;
+        Insets originalInsets = gbc.insets;
+
+        // Cấu hình GBC cho JSeparator
+        gbc.gridx = 0;
+        gbc.gridy = viTri;
+        gbc.gridwidth = 2; // Cho phép JSeparator kéo dài qua 2 cột
+        gbc.fill = GridBagConstraints.HORIZONTAL; // Cho phép JSeparator lấp đầy theo chiều ngang
+        gbc.insets = new Insets(5, 0, 5, 0); // Thêm một chút đệm trên và dưới
+
+        pnl.add(separator, gbc);
+
+        // Khôi phục lại các cài đặt GBC cho các component tiếp theo
+        gbc.gridwidth = originalGridWidth;
+        gbc.fill = originalFill;
+        gbc.insets = originalInsets;
+        
+        // Trả về vị trí (gridy) tiếp theo
+        return viTri + 1;
+    }
+    private JLabel makeLabel(String text) {
+        JLabel lbl = new JLabel(text);
+        lbl.setFont(fontChu);
+        lbl.setForeground(TEXT_COLOR);
+        return lbl;
+    }
+
+    private JLabel makeValue(String text) {
+        JLabel lbl = new JLabel(text);
+        lbl.setFont(fontChu);
+        lbl.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        lbl.setForeground(TEXT_COLOR);
+        return lbl;
+    }    
+    private JPanel taopnlhoaDon(HoaDon hoaDon, List<ChiTietHoaDon> listCTHD) {
+    	JLabel lblMaGD, lblPhuongThuc, lblSoTien, lblSuatChieu, lblNgayChieu
+        , lblPhongChieu, lblTenKH, lblTenNV, lblSDTKH;
+        JLabel valMaGD, valPhuongThuc, valSoTien, valSuatChieu, valNgayChieu
+        , valPhongChieu, valTenKH, valTenNV, valSDTKH;
+        
+    	lblMaGD = makeLabel("Mã hóa đơn");
+        lblPhuongThuc = makeLabel("Phương thức");
+        lblSoTien = makeLabel("Số tiền");
+        lblSuatChieu = makeLabel("Suất chiếu");
+        lblNgayChieu = makeLabel("Ngày chiếu");
+        lblPhongChieu = makeLabel("Phòng");
+        lblTenKH = makeLabel("Tên khách hàng");
+        lblSDTKH = makeLabel("Số điện thoại khách hàng");
+        lblTenNV = makeLabel("Tên nhân viên");
+        
+        valMaGD = makeValue(hoaDon.getMaHD() + "");
+        valPhuongThuc = makeValue(hoaDon.getPhuongThucThanhToan().getTenPTTT());
+        valSoTien = makeValue(String.format("%,.0f đ", hoaDon.tinhTong(listCTHD)));
+        valSoTien.setForeground(new Color(255, 130, 0));
+        
+        valSuatChieu = makeValue(listCTHD.get(0).getVe().getGioChieu() + "");
+        valNgayChieu = makeValue(listCTHD.get(0).getVe().getNgayChieu() + "");
+        valPhongChieu = makeValue(listCTHD.get(0).getVe().getTenPhongChieu() + "");
+        valTenKH = makeValue(hoaDon.getKhachHang().getTenKH() + "");
+        valSDTKH = makeValue(hoaDon.getKhachHang().getSDT() + "");
+        valTenNV = makeValue(hoaDon.getNhanVien().getTenNhanVien());
+        
+        LoadHinhAnh loadHinhAnh = new LoadHinhAnh();
+        JLabel lblLogo = new JLabel(loadHinhAnh.taiHinhAnh("/img/logo.png", 100, 100), SwingConstants.CENTER);
+        lblLogo.setBackground(PRI_COLOR);
+        lblLogo.setOpaque(false);
+        
+		JPanel pnl = new JPanel(new GridBagLayout());
+		pnl.setBackground(SEC_COLOR);
+		pnl.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(7, 8, 7, 8);
+        gbc.anchor = GridBagConstraints.WEST;        
+        
+        int viTri = 0;
+        
+        gbc.gridx = 0; gbc.gridy = viTri++; gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        pnl.add(lblLogo, gbc);
+        
+        JLabel lblTitle = new JLabel("HÓA ĐƠN THANH TOÁN", SwingConstants.CENTER);
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        lblTitle.setForeground(RED_COLOR);
+        
+        gbc.gridy = viTri++; gbc.insets = new Insets(2, 8, 15, 8); // Padding lớn hơn
+        pnl.add(lblTitle, gbc);
+        
+        // Reset về cấu hình mặc định
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(7, 8, 7, 8);
+        
+        
+        gbc.gridx = 0; gbc.gridy = viTri++; pnl.add(lblMaGD, gbc);
+        gbc.gridx = 1; pnl.add(valMaGD, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = viTri++; pnl.add(lblTenKH, gbc);
+        gbc.gridx = 1; pnl.add(valTenKH, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = viTri++; pnl.add(lblSDTKH, gbc);
+        gbc.gridx = 1; pnl.add(valSDTKH, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = viTri++; pnl.add(lblPhuongThuc, gbc);
+        gbc.gridx = 1; pnl.add(valPhuongThuc, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = viTri++; pnl.add(lblSuatChieu, gbc);
+        gbc.gridx = 1; pnl.add(valSuatChieu, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = viTri++; pnl.add(lblNgayChieu, gbc);
+        gbc.gridx = 1; pnl.add(valNgayChieu, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = viTri++; pnl.add(lblPhongChieu, gbc);
+        gbc.gridx = 1; pnl.add(valPhongChieu, gbc);
+
+        gbc.gridx = 0; gbc.gridy = viTri++; pnl.add(lblTenNV, gbc);
+        gbc.gridx = 1; pnl.add(valTenNV, gbc);
+        
+        viTri = addDongKe(pnl, gbc, viTri);
+
+        gbc.gridx = 0; gbc.gridy = viTri++; pnl.add(makeLabel("Vé "), gbc);
+        gbc.gridx = 1; pnl.add(makeValue(" "), gbc);
+
+       
+        for(ChiTietHoaDon cthd : listCTHD) {
+            String tenGhe = cthd.getVe().getTenGhe();
+            double donGia = cthd.getDonGiaBan();
+            
+        	gbc.gridx = 0; gbc.gridy = viTri++;
+        	pnl.add(makeLabel("    • " + tenGhe), gbc);
+            gbc.gridx = 1;
+            pnl.add(makeValue(String.format("%,.0f đ", donGia)), gbc);
+        }
+        
+        if(hoaDon.getSoLuongBap() > 0) {
+        	gbc.gridx = 0; gbc.gridy = viTri++; pnl.add(makeLabel("Bắp x" + hoaDon.getSoLuongBap() ), gbc);
+            gbc.gridx = 1; pnl.add(makeValue(String.format("%,.0f đ", hoaDon.tinhGiaBap())), gbc);
+        }
+        
+        if(hoaDon.getSoLuongNuoc() > 0) {
+        	gbc.gridx = 0; gbc.gridy = viTri++; pnl.add(makeLabel("Nước x" + hoaDon.getSoLuongNuoc() ), gbc);
+            gbc.gridx = 1; pnl.add(makeValue(String.format("%,.0f đ", hoaDon.tinhGiaNuoc())), gbc);
+        }
+        
+        if(hoaDon.getKhuyenMai() != null) {
+        	gbc.gridx = 0; gbc.gridy = viTri++; pnl.add(makeLabel("Khuyến mãi " + hoaDon.getKhuyenMai().getTenKM() ), gbc);
+            gbc.gridx = 1; pnl.add(makeValue("- " + String.format("%,.0f đ", hoaDon.getKhuyenMai().getGiaTriKM())), gbc);
+        }
+        
+        viTri = addDongKe(pnl, gbc, viTri);
+        
+        gbc.gridx = 0; gbc.gridy = viTri++; pnl.add(lblSoTien, gbc);
+        gbc.gridx = 1; pnl.add(valSoTien, gbc);
+      
+        return pnl;
+	}
 }
