@@ -13,9 +13,7 @@ import Entity.HoaDon;
 import Entity.KhachHang;
 import Entity.KhuyenMai;
 import Entity.NhanVien;
-import Entity.Phim;
 import Entity.PhuongThucThanhToan;
-import Entity.TheLoai;
 
 public class HoaDonDAO {
 	Connection conn;
@@ -34,7 +32,7 @@ public class HoaDonDAO {
 	
 	public List<HoaDon> layTatCaHoaDon() {
         String sql = "SELECT * FROM hoa_don ORDER BY ngayLapHoaDon DESC";
-        List<HoaDon> list = new ArrayList();
+        List<HoaDon> list = new ArrayList<HoaDon>();
 
         try (PreparedStatement pst = conn.prepareStatement(sql);
         		ResultSet rs = pst.executeQuery()) {

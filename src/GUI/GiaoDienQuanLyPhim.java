@@ -16,6 +16,7 @@ import java.util.List;
 
 import DAO.PhimDAO;
 import DAO.TheLoaiDAO;
+import Entity.NhanVien;
 import Entity.Phim;
 import Entity.TheLoai;
 
@@ -34,7 +35,7 @@ public class GiaoDienQuanLyPhim extends JPanel implements ActionListener {
     private JTextArea txtMoTa = new JTextArea(4,20);
     private JComboBox<TheLoai> cboTheLoai = new JComboBox<>();
     private JTextField txtSearch = new JTextField();
-
+    
     private JLabel lblPoster = new JLabel("<html><center>Poster<br>không có</center></html>", JLabel.CENTER);
 
     private DefaultTableModel model = new DefaultTableModel(
@@ -58,7 +59,9 @@ public class GiaoDienQuanLyPhim extends JPanel implements ActionListener {
     // Selected image path
     private String selectedImgPath = null;
 
-    public GiaoDienQuanLyPhim() {
+    private NhanVien nhanVien;
+    public GiaoDienQuanLyPhim(NhanVien nhanVien) {
+    	this.nhanVien = nhanVien;
     	try {
 			this.conn = ConnectDB.getConnection();
 			this.phimDAO = new PhimDAO(conn);
@@ -353,7 +356,7 @@ public class GiaoDienQuanLyPhim extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e){
         Object o = e.getSource();
         if(o.equals(btnBack)){ 
-        	new GiaoDienChonPhim().setVisible(true);
+        	new GiaoDienChonPhim(nhanVien).setVisible(true);
         	SwingUtilities.getWindowAncestor(this).dispose(); 
         	}
         else if(o.equals(btnFind) || o.equals(txtSearch)) search();

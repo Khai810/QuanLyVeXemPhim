@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import Entity.KhachHang;
 import Entity.KhuyenMai;
 
 public class KhuyenMaiDAO {
@@ -20,7 +19,7 @@ public class KhuyenMaiDAO {
 	
 	public List<KhuyenMai> layTatCaKhuyenMai() {
         String sql = "SELECT * FROM khuyen_mai";
-        List<KhuyenMai> list = new ArrayList();
+        List<KhuyenMai> list = new ArrayList<>();
 
         try (PreparedStatement pst = conn.prepareStatement(sql);
         		ResultSet rs = pst.executeQuery()) {

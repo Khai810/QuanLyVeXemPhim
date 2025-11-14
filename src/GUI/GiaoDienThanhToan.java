@@ -47,7 +47,7 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
 	private KhuyenMai khuyenMaiHopLe = null;
 	List<PhuongThucThanhToan> listPTTT = null;
 	// mock NV
-	NhanVien nhanVien = new NhanVien(1, "nhan vien ban ve", "0123456789", "nv@gmail.com", "admin", "admin");
+	NhanVien nhanVien;
 	
 	LoadHinhAnh load = new LoadHinhAnh();
 	
@@ -73,12 +73,12 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
     private static final Color BTN_COLOR = Color.WHITE;
     
     
-	public GiaoDienThanhToan(Set<Ghe> ghe, SuatChieu suatChieu) {
-		
+	public GiaoDienThanhToan(Set<Ghe> ghe, SuatChieu suatChieu, NhanVien nhanVien) {
+		this.nhanVien = nhanVien;
 		this.suatChieuDaChon = suatChieu;
 		this.gheDaChon = ghe;
 		
-		MenuChinh menuBar = new MenuChinh(this);
+		MenuChinh menuBar = new MenuChinh(this, nhanVien);
 		this.setJMenuBar(menuBar);
 		MenuToggleUtil.addToggleSupport(this, menuBar);
 		
@@ -602,7 +602,7 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
 		        }
 		        conn.commit();
 		        
-		        GiaoDienDatVeThanhCong frm = new GiaoDienDatVeThanhCong(hd);
+		        GiaoDienDatVeThanhCong frm = new GiaoDienDatVeThanhCong(hd, nhanVien);
 		        frm.setVisible(true);
 		        dispose();
 			}catch (Exception ex) {
@@ -613,7 +613,7 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
 		    }
 		}
 		if(event.equals(btnQuayLai)) {
-			GiaoDienChonGhe frm = new GiaoDienChonGhe(suatChieuDaChon.getPhim());
+			GiaoDienChonGhe frm = new GiaoDienChonGhe(suatChieuDaChon.getPhim(), nhanVien);
 		    frm.setVisible(true);
 		    dispose();
 		}

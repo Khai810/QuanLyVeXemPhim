@@ -84,7 +84,7 @@ public class KhachHangDAO {
 
 	public List<KhachHang> layTatCaKhachHang() {
         String sql = "SELECT * FROM khach_hang ORDER BY maKH";
-        List<KhachHang> list = new ArrayList();
+        List<KhachHang> list = new ArrayList<>();
 
         try (PreparedStatement pst = conn.prepareStatement(sql);
         		ResultSet rs = pst.executeQuery()) {

@@ -50,7 +50,7 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
     private NhanVienDAO nhanVienDAO;
     private KhuyenMaiDAO khuyenMaiDAO;
     private PhuongThucThanhToanDAO ptttDAO;
-
+    private NhanVien nhanVien;
     // Buttons
     private JButton btnFind, btnReload;
     private JButton btnXoaRong, btnSave, btnUpdate, btnDelete;
@@ -65,8 +65,9 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
     
     //=========== Constructor ===========
 
-    public GiaoDienQuanLyHoaDon() {
-        try {
+    public GiaoDienQuanLyHoaDon(NhanVien nhanVien) {
+        this.nhanVien = nhanVien;
+    	try {
             this.conn = ConnectDB.getConnection();
             this.hoaDonDAO = new HoaDonDAO(conn);
             this.khachHangDAO = new KhachHangDAO(conn);
@@ -78,7 +79,7 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
             e.printStackTrace();
         }
         
-        MenuChinh menuBar = new MenuChinh(this);
+        MenuChinh menuBar = new MenuChinh(this, nhanVien);
 		this.setJMenuBar(menuBar);
 		MenuToggleUtil.addToggleSupport(this, menuBar);
 		

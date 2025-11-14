@@ -1,17 +1,20 @@
 package GUI; // Hoặc package của bạn
 
 import javax.swing.*;
+
+import Entity.NhanVien;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class MenuChinh extends JMenuBar {
-	JMenu menuVe, menuNhanVien, menuSuatChieu, menuPhongChieu, menuHoaDon, menuPhim;
+	JMenu menuVe, menuNhanVien, menuSuatChieu, menuPhongChieu, menuHoaDon, menuPhim, menuKhachHang;
 	JMenuItem itemMuaVe, itemQuanLyVe, itemQuanLyNhanVien, itemQuanLySuatChieu
-		, itemQuanLyHoaDon, itemQuanLyPhongChieu, itemQuanLyPhim;
+		, itemQuanLyHoaDon, itemQuanLyPhongChieu, itemQuanLyPhim, itemQuanLyKhachHang, itemDangXuat;
 	
     private JFrame parentFrame;
 
-    public MenuChinh(JFrame parentFrame) {
+    public MenuChinh(JFrame parentFrame, NhanVien nhanVien) {
         super();
         this.parentFrame = parentFrame; // Lưu frame cha lại
         
@@ -22,7 +25,7 @@ public class MenuChinh extends JMenuBar {
         itemMuaVe.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-              new GiaoDienChonPhim().setVisible(true);
+              new GiaoDienChonPhim(nhanVien).setVisible(true);
               parentFrame.dispose(); 
           }
       });
@@ -36,7 +39,16 @@ public class MenuChinh extends JMenuBar {
         // Menu Nhân Viên
         menuNhanVien = new JMenu("Nhân Viên");
         itemQuanLyNhanVien = new JMenuItem("Quản lý nhân viên");
+        itemDangXuat = new JMenuItem("Đăng xuất");
+        itemDangXuat.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new GiaoDienDangNhap().setVisible(true);
+                parentFrame.dispose(); 
+            }
+        });
         menuNhanVien.add(itemQuanLyNhanVien);
+        menuNhanVien.add(itemDangXuat);
         // Menu Suất Chiếu
         menuSuatChieu = new JMenu("Suất Chiếu");
         itemQuanLySuatChieu = new JMenuItem("Quản lý suất chiếu");
@@ -53,7 +65,7 @@ public class MenuChinh extends JMenuBar {
         itemQuanLyHoaDon.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new GiaoDienQuanLyHoaDon().setVisible(true);
+                new GiaoDienQuanLyHoaDon(nhanVien).setVisible(true);
                 parentFrame.dispose(); 
             }
         });
@@ -68,12 +80,19 @@ public class MenuChinh extends JMenuBar {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-            	GiaoDienQuanLyPhim panel = new GiaoDienQuanLyPhim();
+            	GiaoDienQuanLyPhim panel = new GiaoDienQuanLyPhim(nhanVien);
                 parentFrame.setContentPane(panel);
                 parentFrame.revalidate();
                 parentFrame.repaint();
             }
         });
+        
+     // Menu Phòng Chiếu
+        menuKhachHang = new JMenu("Khách Hàng");
+        itemQuanLyKhachHang = new JMenuItem("Quản lý khách hàng");
+        menuKhachHang.add(itemQuanLyKhachHang);
+        
+        
         // Thêm hành động cho "Exit"
 //        itemExit.addActionListener(new ActionListener() {
 //            @Override
@@ -101,11 +120,11 @@ public class MenuChinh extends JMenuBar {
 
         // --- 3. Thêm các JMenu vào JMenuBar (chính là 'this') ---
         this.add(menuVe);
-        this.add(menuNhanVien);
         this.add(menuSuatChieu);
         this.add(menuPhongChieu);
         this.add(menuHoaDon);
         this.add(menuPhim);
-
+        this.add(menuKhachHang);
+        this.add(menuNhanVien);
     }
 }

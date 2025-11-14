@@ -17,6 +17,7 @@ import java.util.List;
 import Entity.Phim;
 import Entity.SuatChieu;
 import Entity.Ghe;
+import Entity.NhanVien;
 
 @SuppressWarnings("serial")
 public class GiaoDienChonGhe extends JFrame {
@@ -32,15 +33,16 @@ public class GiaoDienChonGhe extends JFrame {
     private Set<String> selectedSeats = new LinkedHashSet<>();
     private List<SuatChieu> listSuatChieu;
     Set<Ghe> countedGhe = new HashSet<>();
-    
+    private NhanVien nhanVien;
     // colors
     private final Color COLOR_AVAILABLE = new Color(240, 240, 240);
     private final Color COLOR_BOOKED = Color.RED; // đỏ nhạt
     private final Color COLOR_SELECTED = Color.YELLOW; // vàng
     private final Color COLOR_BG = Color.WHITE;
 
-    public GiaoDienChonGhe(Phim phim) {
-        loadSuatChieu(phim.getMaPhim());
+    public GiaoDienChonGhe(Phim phim, NhanVien nhanVien) {
+    	this.nhanVien = nhanVien;
+    	loadSuatChieu(phim.getMaPhim());
         
     	this.suatChieu = listSuatChieu.get(0);
         if (suatChieu != null && suatChieu.getGiaVeCoBan() != null) {
@@ -374,11 +376,11 @@ public class GiaoDienChonGhe extends JFrame {
 
         btnBack.addActionListener(e -> {
             dispose(); // đóng giao diện hiện tại
-            SwingUtilities.invokeLater(() -> new GiaoDienChonPhim().setVisible(true));
+            SwingUtilities.invokeLater(() -> new GiaoDienChonPhim(nhanVien).setVisible(true));
         });
 
         btnContinue.addActionListener(e -> {
-            new GiaoDienThanhToan(countedGhe, suatChieu).setVisible(true);
+            new GiaoDienThanhToan(countedGhe, suatChieu, nhanVien).setVisible(true);
             dispose();
         });
 

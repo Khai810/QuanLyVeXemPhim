@@ -1,21 +1,39 @@
 package GUI;
 import javax.swing.*;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+
 import Entity.ChiTietHoaDon;
 import Entity.Ve;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("serial")
 public class TicketPanel extends JPanel {
-    private List<ChiTietHoaDon> listCTHD;
-
-    public TicketPanel(List<ChiTietHoaDon> listCTHD) {
-        this.listCTHD = listCTHD;
+//    private List<ChiTietHoaDon> listCTHD;
+    private Ve ve;
+	private BufferedImage qrCodeImage;
+    public TicketPanel(Ve ve) {
+        this.ve = ve;
         setPreferredSize(new Dimension(400, 350)); // kích thước vé
+        try {
+            this.qrCodeImage = generateQRCode("VE-" + ve.getMaVe(), 100, 100);
+        } catch (WriterException e) {
+            e.printStackTrace();
+            System.err.println("❌ Lỗi khi tạo QR code: " + e.getMessage());
+        }
+
     }
     
 	private static final Color PRI_COLOR = new Color(252, 247, 223);
@@ -53,29 +71,32 @@ public class TicketPanel extends JPanel {
         int x = 40, y = 70, line = 25;
         DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         
-        String tenGhe = layDanhSachGhe(listCTHD.stream().map(ChiTietHoaDon::getVe).toList());
-        Double giaVe = tinhGiaVe(listCTHD);
-        
-        g2.drawString("Mã: " + listCTHD.get(0).getHoaDon().getMaHD(), x, y);
+        g2.drawString("Mã vé: " + ve.getMaVe(), x, y);
         
         g2.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{6}, 0));
         g2.drawLine(30, 75, 370, 75);
         
-        g2.drawString("Phim: " + listCTHD.get(0).getVe().getSuatChieu().getPhim().getTenPhim(), x, y += line);
-        g2.drawString("Ngày chiếu: " + listCTHD.get(0).getVe().getNgayChieu().format(df), x, y += line);
-        g2.drawString("Giờ chiếu: " + listCTHD.get(0).getVe().getGioChieu().toString(), x, y += line);
-        g2.drawString("Ghế: " + tenGhe, x, y += line);
-        g2.drawString("Rạp : " + listCTHD.get(0).getVe().getTenPhongChieu(), x, y += line);
+        g2.drawString("Phim: " + ve.getSuatChieu().getPhim().getTenPhim(), x, y += line);
+        g2.drawString("Ngày chiếu: " + ve.getNgayChieu().format(df), x, y += line);
+        g2.drawString("Giờ chiếu: " + ve.getGioChieu().toString(), x, y += line);
+        g2.drawString("Ghế: " + ve.getTenGhe(), x, y += line);
+        g2.drawString("Rạp : " + ve.getTenPhongChieu(), x, y += line);
         
-        g2.drawString("Giá vé: " + String.format("%,.0f VND", giaVe), x, y += line);
+        g2.drawString("Giá vé: " + String.format("%,.0f VND", ve.getGiaVe()), x, y += line);
 
         // Đường gạch đứt (giữa vé)
         g2.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{6}, 0));
         g2.drawLine(30, 200, 370, 200);
 
         // QR / Mã vạch giả lập
-        g2.setColor(Color.GRAY);
-        g2.fillRect(280, 230, 90, 90);
+        if (qrCodeImage != null) {
+            g2.drawImage(qrCodeImage, 270, 220, 100, 100, this);
+        } else {
+            g2.setColor(Color.LIGHT_GRAY);
+            g2.fillRect(270, 245, 100, 100);
+            g2.setColor(Color.BLACK);
+            g2.drawString("QR Code", 290, 295);
+        }
     }
 
     // Xuất panel ra ảnh PNG
@@ -86,21 +107,16 @@ public class TicketPanel extends JPanel {
         g2.dispose();
         javax.imageio.ImageIO.write(image, "png", new java.io.File(filePath));
     }
-
-    private String layDanhSachGhe(List<Ve> listVe) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < listVe.size(); i++) {
-            sb.append(listVe.get(i).getTenGhe());
-            if (i < listVe.size() - 1) sb.append(", ");
-        }
-        return sb.toString();
-    }
     
-    private Double tinhGiaVe(List<ChiTietHoaDon> listCTHD) { 
-    	Double tong = 0.0;
-    	for(ChiTietHoaDon chiTietHoaDon : listCTHD) {
-    		tong += chiTietHoaDon.getDonGiaBan();
-    	}
-    	return tong;
+    private BufferedImage generateQRCode(String text, int width, int height) throws WriterException {
+        Map<EncodeHintType, Object> hints = new HashMap<>();
+        hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+        hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+        hints.put(EncodeHintType.MARGIN, 1);
+        
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height, hints);
+        
+        return MatrixToImageWriter.toBufferedImage(bitMatrix);
     }
 }

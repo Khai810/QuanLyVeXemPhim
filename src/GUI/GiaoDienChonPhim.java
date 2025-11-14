@@ -12,6 +12,7 @@ import javax.swing.border.EmptyBorder;
 
 import ConnectDB.ConnectDB;
 import DAO.PhimDAO;
+import Entity.NhanVien;
 import Entity.Phim;
 
 
@@ -34,9 +35,12 @@ public class GiaoDienChonPhim extends JFrame implements ActionListener{
     private static final Color TEXT_COLOR = Color.BLACK;
     private static final Color BTN_COLOR = Color.WHITE;
 	
-	public GiaoDienChonPhim() {
+    NhanVien nhanVien;
+    
+	public GiaoDienChonPhim(NhanVien nhanVien) {
 		super();
-		MenuChinh menuBar = new MenuChinh(this);
+		this.nhanVien = nhanVien;
+		MenuChinh menuBar = new MenuChinh(this, nhanVien);
 		this.setJMenuBar(menuBar);
 		MenuToggleUtil.addToggleSupport(this, menuBar);
 		
@@ -100,7 +104,7 @@ public class GiaoDienChonPhim extends JFrame implements ActionListener{
         add(pnlTitle, BorderLayout.NORTH);
         add(spDanhSachPhim, BorderLayout.CENTER);
         
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setSize(1400, 800);
 		setLocationRelativeTo(null); // Căn giữa màn hình
 	}
@@ -209,7 +213,7 @@ public class GiaoDienChonPhim extends JFrame implements ActionListener{
 
 	private void chonPhim(Phim phim, Component component) {
 		// Tạo và hiển thị màn hình chọn suất chiếu
-	    GiaoDienChonGhe frm = new GiaoDienChonGhe(phim);
+	    GiaoDienChonGhe frm = new GiaoDienChonGhe(phim, nhanVien);
 	    frm.setVisible(true);
 	    
 	    // Đóng màn hình hiện tại
