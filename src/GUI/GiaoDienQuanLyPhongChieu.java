@@ -123,6 +123,8 @@ public class GiaoDienQuanLyPhongChieu extends JPanel {
         btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btn.setOpaque(true);
         btn.setBorderPainted(false);
+		btn.setFocusPainted(false);
+
         return btn;
     }
 

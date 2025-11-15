@@ -480,6 +480,8 @@ public class GiaoDienQuanLySuatChieu extends JPanel{
     	btn.setOpaque(true);
     	btn.setBorderPainted(false);
     	btn.setContentAreaFilled(true);
+		btn.setFocusPainted(false);
+
     	return btn;
     }
 }

@@ -342,6 +342,8 @@ public class GiaoDienQuanLyNhanVien extends JFrame implements ActionListener {
     	btn.setOpaque(true);
     	btn.setBorderPainted(false);
     	btn.setContentAreaFilled(true);
+		btn.setFocusPainted(false);
+
     	return btn;
     }
     

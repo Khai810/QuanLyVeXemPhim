@@ -38,8 +38,15 @@ public class GiaoDienChonGhe extends JFrame {
     private final Color COLOR_AVAILABLE = new Color(240, 240, 240);
     private final Color COLOR_BOOKED = Color.RED; // đỏ nhạt
     private final Color COLOR_SELECTED = Color.YELLOW; // vàng
-    private final Color COLOR_BG = Color.WHITE;
+    private final Color COLOR_BG = new Color(253, 252, 241);
 
+    private static final Color PRI_COLOR = new Color(252, 247, 223);
+    private static final Color SEC_COLOR = new Color(253, 252, 241);
+    private static final Color RED_COLOR = new Color(212, 54, 37);
+    
+    private static final Color TEXT_COLOR = Color.BLACK;
+    private static final Color BTN_COLOR = Color.WHITE;
+    
     public GiaoDienChonGhe(Phim phim, SuatChieu suatChieu, NhanVien nhanVien) {
         this.nhanVien = nhanVien;
 
@@ -339,8 +346,8 @@ public class GiaoDienChonGhe extends JFrame {
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         btns.setBackground(COLOR_BG);
 
-        JButton btnBack = new JButton("Quay lại");
-        btnContinue = new JButton("Tiếp tục");
+        JButton btnBack = taoBtn("Quay lại");
+        btnContinue = taoBtn("Tiếp tục");
         btnContinue.setBackground(new Color(255, 153, 51));
         btnContinue.setForeground(Color.WHITE);
 
@@ -465,5 +472,19 @@ public class GiaoDienChonGhe extends JFrame {
     private void loadSuatChieu(int maPhim) {
     	SuatChieuDAO suatChieuDAO = new SuatChieuDAO();
     	this.listSuatChieu = suatChieuDAO.getAllSuatChieu(maPhim);
+    }
+    
+    private JButton taoBtn(String ten) {
+    	JButton btn = new JButton(ten);
+    	btn.setBackground(RED_COLOR);
+    	btn.setForeground(BTN_COLOR);
+    	btn.setPreferredSize(new Dimension(90, 40));
+    	btn.setFont(new Font("Segoe UI", Font.BOLD, 11));
+    	btn.setOpaque(true);
+    	btn.setBorderPainted(false);
+    	btn.setContentAreaFilled(true);
+		btn.setFocusPainted(false);
+
+    	return btn;
     }
 }

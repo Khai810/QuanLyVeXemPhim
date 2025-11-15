@@ -249,7 +249,8 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
         btnTao.setForeground(BTN_COLOR);
         btnTao.setPreferredSize(new Dimension(200, 50));
         btnTao.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        
+        btnTao.setFocusPainted(false);
+
         btnTao.setOpaque(true);
         btnTao.setBorderPainted(false);
         btnTao.setContentAreaFilled(true);
@@ -258,7 +259,8 @@ public class GiaoDienThanhToan extends JFrame implements ActionListener{
         btnQuayLai.setForeground(BTN_COLOR);
         btnQuayLai.setPreferredSize(new Dimension(200, 50));
         btnQuayLai.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        
+        btnQuayLai.setFocusPainted(false);
+
         btnQuayLai.setOpaque(true);
         btnQuayLai.setBorderPainted(false);
         btnQuayLai.setContentAreaFilled(true);

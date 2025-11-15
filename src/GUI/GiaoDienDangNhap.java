@@ -86,6 +86,7 @@ public class GiaoDienDangNhap extends JFrame implements ActionListener{
         btnDangNhap.setBackground(RED_COLOR);
         btnDangNhap.setForeground(BTN_COLOR);
         btnDangNhap.setPreferredSize(new Dimension(180, 40));
+        btnDangNhap.setFocusPainted(false);
 
         btnDangNhap.setOpaque(true);
         btnDangNhap.setBorderPainted(false);

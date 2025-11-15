@@ -383,6 +383,8 @@ public class GiaoDienQuanLyPhim extends JPanel implements ActionListener {
     	btn.setOpaque(true);
     	btn.setBorderPainted(false);
     	btn.setContentAreaFilled(true);
+		btn.setFocusPainted(false);
+
     	return btn;
     }
 }

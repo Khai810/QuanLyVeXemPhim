@@ -27,8 +27,11 @@ public class GiaoDienChonSuatChieu extends JFrame {
     private static final Color SEC_COLOR = new Color(253, 252, 241);
     private static final Color RED_COLOR = new Color(212, 54, 37);
     
+
+    private static final Color ORANGE_DARK = new Color(199, 91, 18);
     private static final Color TEXT_COLOR = Color.BLACK;
     private static final Color BTN_COLOR = Color.WHITE;
+    private static final Font fontChu = new Font("Segoe UI", Font.PLAIN, 14);
 
     public GiaoDienChonSuatChieu(Phim phim, NhanVien nv) {
         this.phim = phim;
@@ -60,7 +63,7 @@ public class GiaoDienChonSuatChieu extends JFrame {
     private void addSouth() {
         JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 8));
         south.setBackground(new Color(252,247,223));
-        btnQuayLai = new JButton("Quay lại");
+        btnQuayLai = taoBtn("Quay lại");
         btnQuayLai.setBackground(RED_COLOR);
         btnQuayLai.setForeground(BTN_COLOR);
         btnQuayLai.setPreferredSize(new Dimension(200, 50));
@@ -111,20 +114,19 @@ public class GiaoDienChonSuatChieu extends JFrame {
         JButton firstDateButton = null; // lưu nút ngày đầu tiên
 
         for (String dateStr : uniqueDates) {
-            JButton btnDate = new JButton(dateStr);
-            btnDate.setFocusPainted(false);
-
+            JButton btnDate = taoBtn(dateStr);
+            btnDate.setPreferredSize(new Dimension(150, 40));
+            
             btnDate.addActionListener(e -> {
                 // Reset màu các nút khác
                 for (Component c : datePanel.getComponents()) {
                     if (c instanceof JButton) {
-                        c.setBackground(null);
-                        ((JButton) c).setForeground(Color.BLACK);
+                    	((JButton) c).setBackground(RED_COLOR);
                     }
                 }
                 // Tô màu nút đang chọn
-                btnDate.setBackground(Color.YELLOW);
-                btnDate.setForeground(Color.BLACK);
+                btnDate.setBackground(ORANGE_DARK);
+//                btnDate.setForeground(Color.WHITE);
 
                 // Hiển thị giờ chiếu cho ngày đã chọn
                 showTimesForDate(dateStr);
@@ -149,9 +151,7 @@ public class GiaoDienChonSuatChieu extends JFrame {
 
         for (SuatChieu sc : scList) {
             if (sc.getNgayChieu().toString().equals(dateStr)) {
-                JButton btnSC = new JButton(sc.getGioChieu().toString());
-                btnSC.setFocusPainted(false);
-                btnSC.setBackground(SEC_COLOR);
+                JButton btnSC = taoBtn(sc.getGioChieu().toString());
                 btnSC.addActionListener(ev -> {
                     new GiaoDienChonGhe(phim, sc, nhanVien).setVisible(true);
                     dispose();
@@ -212,7 +212,7 @@ public class GiaoDienChonSuatChieu extends JFrame {
         card.add(posterPanel, BorderLayout.WEST);
         // Tên phim
         Font titleFont = new Font("Segoe UI", Font.BOLD, 20); 
-        Font infoFont = new Font("Segoe UI", Font.PLAIN, 16);
+        Font infoFont = fontChu;
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setBackground(SEC_COLOR);
@@ -261,4 +261,20 @@ public class GiaoDienChonSuatChieu extends JFrame {
         java.text.NumberFormat nf = java.text.NumberFormat.getInstance(Locale.of("vi", "VN"));
         return nf.format(Math.round(v)) + " đ";
     }
+    
+    private JButton taoBtn(String tenBtn) {
+		JButton btn = new JButton(tenBtn);
+        
+		btn.setBackground(RED_COLOR);
+		btn.setForeground(BTN_COLOR);
+		btn.setPreferredSize(new Dimension(150, 40));
+		btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        
+		btn.setFocusPainted(false);
+		btn.setOpaque(true);
+		btn.setBorderPainted(false);
+		btn.setContentAreaFilled(true);
+		
+		return btn;
+	}
 }

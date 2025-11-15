@@ -93,7 +93,8 @@ public class GiaoDienChonPhim extends JFrame implements ActionListener{
         btnTim.setOpaque(true);
         btnTim.setBorderPainted(false);
         btnTim.setContentAreaFilled(true);
-        
+        btnTim.setFocusPainted(false);
+
         pnlSearch.add(txtTim);
         pnlSearch.add(btnTim);
 
