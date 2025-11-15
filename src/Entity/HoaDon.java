@@ -32,13 +32,15 @@ public class HoaDon {
 	
 	public Double tinhTong(List<ChiTietHoaDon> listCTHD) {
 		Double tong = 0.0;
-		for(ChiTietHoaDon chiTietHoaDon : listCTHD) {
-			tong += chiTietHoaDon.getDonGiaBan();
-		}
 		tong += soLuongBap * giaBap;
 		tong += soLuongNuoc * giaNuoc;
 		if(!(khuyenMai == null)) {
 			tong -= khuyenMai.getGiaTriKM();
+		}
+		if(listCTHD.size() > 0) {
+			for(ChiTietHoaDon chiTietHoaDon : listCTHD) {
+				tong += chiTietHoaDon.getDonGiaBan();
+			}
 		}
 		return tong;
 	}

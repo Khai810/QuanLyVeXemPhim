@@ -81,6 +81,35 @@ public class KhachHangDAO {
         }
         return null;
     }
+	
+	public List<KhachHang> searchKH(String tuKhoa) {
+        String sql = "SELECT * FROM khach_hang "
+        		+ "WHERE SDT LIKE ? "
+        		+ "OR CAST(maKH AS VARCHAR) LIKE ? "
+        		+ "OR tenKH LIKE ? "
+        		+ "ORDER BY maKH DESC";
+        List<KhachHang> list = new ArrayList<>();
+        try (PreparedStatement pst = conn.prepareStatement(sql)) {
+            String k = "%" + (tuKhoa == null ? "" : tuKhoa.trim()) + "%";
+        	pst.setString(1, k);
+        	pst.setString(2, k);
+        	pst.setString(3, k);
+        	
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    KhachHang kh = new KhachHang();
+                    kh.setMaKH(rs.getInt("maKH"));
+                    kh.setTenKH(rs.getString("tenKH"));
+                    kh.setSDT(rs.getString("SDT"));
+                    list.add(kh);
+                }
+                return list;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 	public List<KhachHang> layTatCaKhachHang() {
         String sql = "SELECT * FROM khach_hang ORDER BY maKH";
@@ -102,5 +131,43 @@ public class KhachHangDAO {
             System.err.println("Lỗi khi lấy tất cả khách hàng" + e.getMessage());
         }
         return list;
+    }
+
+	public boolean capNhatKhachHang(KhachHang khachHang) {
+        String sql = "UPDATE khach_hang SET tenKH = ?, SDT = ? WHERE maKH = ?";
+        
+        try (PreparedStatement pst = conn.prepareStatement(sql)) {
+            
+            pst.setString(1, khachHang.getTenKH());
+            pst.setString(2, khachHang.getSDT());
+            pst.setInt(3, khachHang.getMaKH());
+
+            int row = pst.executeUpdate();
+            return row > 0;
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println(" Lỗi khi cập nhật khách hàng: " + e.getMessage());
+        }
+        
+        return false; // Thất bại
+    }
+
+	public boolean xoaKH(Integer maKH) {
+        String sql = "DELETE FROM khach_hang WHERE maKH = ?";
+        
+        try (PreparedStatement pst = conn.prepareStatement(sql)) {
+            
+            pst.setInt(1, maKH);
+
+            int row = pst.executeUpdate();
+            return row > 0;
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println(" Lỗi khi xóa khách hàng: " + e.getMessage());
+        }
+        
+        return false; // Thất bại
     }
 }

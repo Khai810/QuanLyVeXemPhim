@@ -4,10 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
@@ -122,7 +119,7 @@ public class GiaoDienDangNhap extends JFrame implements ActionListener{
 			try {
 				Connection conn = ConnectDB.getConnection();
 				NhanVienDAO nhanVienDAO = new NhanVienDAO(conn);
-				NhanVien nhanVien = nhanVienDAO.dangNhap(txtTaiKhoan.getText().trim(), txtMatKhau.getText().trim());
+				NhanVien nhanVien = nhanVienDAO.dangNhap(txtTaiKhoan.getText().trim(),  new String(txtMatKhau.getPassword()));
 
 				if(nhanVien == null) {
 					JOptionPane.showMessageDialog(this, "Sai tài khoản / mật khẩu !!!");

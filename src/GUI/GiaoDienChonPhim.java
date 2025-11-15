@@ -40,6 +40,7 @@ public class GiaoDienChonPhim extends JFrame implements ActionListener{
 	public GiaoDienChonPhim(NhanVien nhanVien) {
 		super();
 		this.nhanVien = nhanVien;
+		
 		MenuChinh menuBar = new MenuChinh(this, nhanVien);
 		this.setJMenuBar(menuBar);
 		MenuToggleUtil.addToggleSupport(this, menuBar);

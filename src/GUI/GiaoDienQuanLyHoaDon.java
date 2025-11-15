@@ -28,7 +28,8 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
     private JTextField txtNgayLap = new JTextField();
     private JTextField txtSoLuongBap = new JTextField();
     private JTextField txtSoLuongNuoc = new JTextField();
-
+    private JTextField txtTongTien = new JTextField();
+    
     private JComboBox<KhachHang> cboKhachHang = new JComboBox<>();
     private JComboBox<NhanVien> cboNhanVien = new JComboBox<>();
     private JComboBox<KhuyenMai> cboKhuyenMai = new JComboBox<>();
@@ -39,7 +40,7 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
 
     private DefaultTableModel model = new DefaultTableModel(
         new Object[]{"Mã HĐ", "Ngày lập", "Khách hàng", "Nhân viên",
-                "Bắp", "Nước", "Khuyến mãi", "PTTT"}, 0
+                "Bắp", "Nước", "Khuyến mãi", "PTTT", "Tổng tiền"}, 0
     ) {
         @Override
         public boolean isCellEditable(int r, int c) { return false; }
@@ -56,8 +57,8 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
     private PhuongThucThanhToanDAO ptttDAO;
 
     // Buttons
-    private JButton btnFind, btnReload;
-    private JButton btnXoaRong, btnSave, btnUpdate, btnDelete, btnInHoaDon;
+    private JButton btnTim, btnTaiLai;
+    private JButton btnThem, btnLuu, btnSua, btnXoa, btnInHoaDon;
     private static final Font fontChu = new Font("Segoe UI", Font.BOLD, 14);
     private static final String FILE_PATH = "inVe/";
 
@@ -118,18 +119,18 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         right.setBackground(PRI_COLOR);
 
-        btnFind = taoBtn("Tìm");
-        btnFind.addActionListener(this);
+        btnTim = taoBtn("Tìm");
+        btnTim.addActionListener(this);
         
-        btnReload = taoBtn("Tải lại");
-        btnReload.addActionListener(this);
+        btnTaiLai = taoBtn("Tải lại");
+        btnTaiLai.addActionListener(this);
         
         
-        btnReload.addActionListener(this);
+        btnTaiLai.addActionListener(this);
         txtSearch.addActionListener(this);
 
-        right.add(btnFind);
-        right.add(btnReload);
+        right.add(btnTim);
+        right.add(btnTaiLai);
 
         panel.add(right, BorderLayout.EAST);
         return panel;
@@ -141,7 +142,8 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
         JSplitPane vertical = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         vertical.setResizeWeight(0.55);
         vertical.setBackground(SEC_COLOR);
-
+        vertical.setBorder(new EmptyBorder(10, 20, 10, 20));
+        
         JSplitPane top = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         top.setResizeWeight(1);
         
@@ -155,6 +157,7 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
         
         JScrollPane tableScroll = new JScrollPane(table);
         tableScroll.setBorder(new EmptyBorder(10, 20, 10, 20));
+        tableScroll.setBackground(PRI_COLOR);;
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setRowHeight(25);
         table.getTableHeader().setFont(new Font("Segoe UI",Font.BOLD,14));
@@ -191,16 +194,17 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
         gc.gridy = r++; addRow(p, gc, "Số nước", txtSoLuongNuoc, false);
         gc.gridy = r++; addRow(p, gc, "Khuyến mãi", cboKhuyenMai, false);
         gc.gridy = r++; addRow(p, gc, "PT thanh toán", cboPTTT, false);
+        gc.gridy = r++; addRow(p, gc, "Tổng tiền", txtTongTien, true);
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 8));
         actions.setBackground(SEC_COLOR);
 
-        btnXoaRong = taoBtn("Thêm");
-        btnSave = taoBtn("Lưu");
-        btnUpdate = taoBtn("Sửa");
-        btnDelete = taoBtn("Xoá");
+        btnThem = taoBtn("Thêm");
+        btnLuu = taoBtn("Lưu");
+        btnSua = taoBtn("Sửa");
+        btnXoa = taoBtn("Xoá");
         btnInHoaDon = taoBtn("In HĐ");
-        for (JButton b : new JButton[]{btnXoaRong, btnSave, btnUpdate, btnDelete, btnInHoaDon}) {
+        for (JButton b : new JButton[]{btnThem, btnLuu, btnSua, btnXoa, btnInHoaDon}) {
             b.addActionListener(this);
             actions.add(b);
         }
@@ -237,6 +241,8 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
         for (NhanVien n : nhanVienDAO.layTatCaNhanVien()) cboNhanVien.addItem(n);
         for (KhuyenMai km : khuyenMaiDAO.layTatCaKhuyenMai()) cboKhuyenMai.addItem(km);
         for (PhuongThucThanhToan p : ptttDAO.layTatCaPTTT()) cboPTTT.addItem(p);
+        
+        clearForm();
     }
 
     private void reloadTable() {
@@ -244,6 +250,9 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
         List<HoaDon> list = hoaDonDAO.layTatCaHoaDon();
 
         for (HoaDon h : list) {
+        	ChiTietHoaDonDAO chiTietHoaDonDAO = new ChiTietHoaDonDAO(conn);
+			List<ChiTietHoaDon> listCTHD = chiTietHoaDonDAO.layChitiethoadon(h.getMaHD());
+			
             model.addRow(new Object[]{
                     h.getMaHD(),
                     h.getNgayLapHoaDon().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
@@ -252,7 +261,8 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
                     h.getSoLuongBap(),
                     h.getSoLuongNuoc(),
                     h.getKhuyenMai() == null ? "" : h.getKhuyenMai().getTenKM(),
-                    h.getPhuongThucThanhToan() == null ? "" : h.getPhuongThucThanhToan().getTenPTTT()
+                    h.getPhuongThucThanhToan() == null ? "" : h.getPhuongThucThanhToan().getTenPTTT(),
+                    h.tinhTong(listCTHD)		
             });
         }
     }
@@ -398,12 +408,12 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
 
-        if (o.equals(btnFind) || o.equals(txtSearch)) search();
-        else if (o.equals(btnReload)) reloadTable();
-        else if (o.equals(btnXoaRong)) clearForm();
-        else if (o.equals(btnSave)) doInsert();
-        else if (o.equals(btnUpdate)) doUpdate();
-        else if (o.equals(btnDelete)) doDelete();
+        if (o.equals(btnTim) || o.equals(txtSearch)) search();
+        else if (o.equals(btnTaiLai)) reloadTable();
+        else if (o.equals(btnThem)) clearForm();
+        else if (o.equals(btnLuu)) doInsert();
+        else if (o.equals(btnSua)) doUpdate();
+        else if (o.equals(btnXoa)) doDelete();
         else if (o.equals(btnInHoaDon)) {
 			try {
 				JFrame frame = new JFrame("Hóa đơn" + txtMaHD.getText());
@@ -447,7 +457,6 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
     	btn.setForeground(BTN_COLOR);
     	btn.setPreferredSize(new Dimension(90, 40));
     	btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-    	btn.addActionListener(this);
     	btn.setOpaque(true);
     	btn.setBorderPainted(false);
     	btn.setContentAreaFilled(true);

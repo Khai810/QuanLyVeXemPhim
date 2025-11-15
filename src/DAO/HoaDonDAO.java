@@ -31,7 +31,7 @@ public class HoaDonDAO {
 	}
 	
 	public List<HoaDon> layTatCaHoaDon() {
-        String sql = "SELECT * FROM hoa_don ORDER BY ngayLapHoaDon DESC";
+        String sql = "SELECT * FROM hoa_don ORDER BY maHD DESC";
         List<HoaDon> list = new ArrayList<HoaDon>();
 
         try (PreparedStatement pst = conn.prepareStatement(sql);
@@ -165,6 +165,7 @@ public class HoaDonDAO {
 	            CAST(hd.maHD AS VARCHAR) LIKE ? 
 	            OR kh.tenKH LIKE ? 
 	            OR nv.tenNhanVien LIKE ?
+	        ORDER BY hd.maHD
 	    """;
 
 	    try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -259,5 +260,49 @@ public class HoaDonDAO {
 	    }
 	}
 
+	public List<HoaDon> layHoaDonBangMaKH(Integer maKH) {
+	    List<HoaDon> list = new ArrayList<>();
+	    
+	    String sql = """
+	        SELECT hd.*
+	        FROM hoa_don hd
+	        LEFT JOIN khach_hang kh ON hd.maKH = kh.maKH
+	        WHERE kh.maKH LIKE ? 
+	        ORDER BY hd.maHD;
+	    """;
 
+	    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+	        ps.setInt(1, maKH);
+	        try (ResultSet rs = ps.executeQuery()) {
+
+	            while (rs.next()) {
+	                HoaDon hoaDon = new HoaDon();
+
+	                hoaDon.setMaHD(rs.getInt("maHD"));
+	                hoaDon.setNgayLapHoaDon(rs.getTimestamp("ngayLapHoaDon").toLocalDateTime());
+	                hoaDon.setSoLuongBap(rs.getInt("soLuongBap"));
+	                hoaDon.setSoLuongNuoc(rs.getInt("soLuongNuoc"));
+
+	                int maNV = rs.getInt("maNhanVien");
+	                int maPTTT = rs.getInt("maPTTT");
+	                int maKM = rs.getInt("maKM");
+
+	                hoaDon.setKhachHang(khachHangDAO.layKhachHangBangMa(maKH));
+	                hoaDon.setNhanVien(nhanVienDAO.layNhanVienBangMa(maNV));
+	                hoaDon.setPhuongThucThanhToan(phuongThucThanhToanDAO.layPTTTBangMa(maPTTT));
+
+	                if (!rs.wasNull()) {
+	                    hoaDon.setKhuyenMai(khuyenMaiDAO.layKhuyenMaiBangMa(maKM));
+	                }
+
+	                list.add(hoaDon);
+	            }
+	        }
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+
+	    return list;
+	}
 }

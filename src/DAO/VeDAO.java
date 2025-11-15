@@ -5,18 +5,12 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
 import ConnectDB.ConnectDB;
 import Entity.Ghe;
-import Entity.HoaDon;
-import Entity.KhachHang;
-import Entity.KhuyenMai;
-import Entity.NhanVien;
-import Entity.PhuongThucThanhToan;
 import Entity.SuatChieu;
 import Entity.Ve;
 
@@ -292,6 +286,19 @@ public class VeDAO {
 	    }
 
 	    return list;
+	}
+	
+	public boolean xoaVe(Integer maVe) {
+		String sql = "DELETE FROM ve WHERE maVe=?";
+
+        try (PreparedStatement pst = conn.prepareStatement(sql)) {
+            pst.setInt(1, maVe);
+            return pst.executeUpdate() > 0;
+        } catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 }

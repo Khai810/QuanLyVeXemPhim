@@ -30,6 +30,7 @@ public class NhanVienDAO {
                 nv.setEmail(rs.getString("email"));
                 nv.setTaiKhoan(rs.getString("taiKhoan"));
                 nv.setMatKhau(rs.getString("matKhau"));
+                nv.setImg(rs.getString("img"));
                 list.add(nv);
             }
             return list;
@@ -42,7 +43,7 @@ public class NhanVienDAO {
     }
 	
 	public boolean taoNhanVien(NhanVien nhanVien) {
-		String sql = "INSERT INTO nhan_vien (tenNhanVien, SDT, email, taiKhoan, matKhau) VALUES (?, ?, ?, ?, ?);";				
+		String sql = "INSERT INTO nhan_vien (tenNhanVien, SDT, email, taiKhoan, matKhau, img) VALUES (?, ?, ?, ?, ?, ?);";				
         try (PreparedStatement pst = conn.prepareStatement(sql)) {
             
             pst.setString(1, nhanVien.getTenNhanVien());
@@ -50,7 +51,8 @@ public class NhanVienDAO {
             pst.setString(3, nhanVien.getEmail());
             pst.setString(4, nhanVien.getTaiKhoan());
             pst.setString(5, nhanVien.getMatKhau());
-            
+            pst.setString(6, nhanVien.getImg());
+
             int rowsAffected = pst.executeUpdate();
             return rowsAffected > 0;
             
@@ -79,6 +81,7 @@ public class NhanVienDAO {
                     nv.setEmail(rs.getString("email"));
                     nv.setTaiKhoan(rs.getString("taiKhoan"));
                     nv.setMatKhau(rs.getString("matKhau"));
+                    nv.setImg(rs.getString("img"));
                 }
             }
 
@@ -106,6 +109,7 @@ public class NhanVienDAO {
                     nv.setEmail(rs.getString("email"));
                     nv.setTaiKhoan(rs.getString("taiKhoan"));
                     nv.setMatKhau(rs.getString("matKhau"));
+                    nv.setImg(rs.getString("img"));
                 }
             }
 
@@ -115,4 +119,76 @@ public class NhanVienDAO {
         }
         return nv;
 	}
+
+	public boolean capNhatNhanVien(NhanVien nv) {
+		String sql = "UPDATE nhan_vien SET tenNhanVien = ?, SDT = ?, email = ?, taiKhoan = ?, matKhau = ?, img = ? "
+				+ "WHERE maNhanVien = ?";				
+		try(PreparedStatement pst = conn.prepareStatement(sql)){
+			pst.setString(1, nv.getTenNhanVien());
+			pst.setString(2, nv.getSDT());
+			pst.setString(3, nv.getEmail());
+			pst.setString(4, nv.getTaiKhoan());
+			pst.setString(5, nv.getMatKhau());
+			pst.setString(6, nv.getImg());
+			pst.setInt(7, nv.getMaNhanVien());
+			int row = pst.executeUpdate();
+			return row > 0;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public boolean xoaNhanVien(Integer maNV) {
+		String sql = "DELETE FROM nhan_vien WHERE maNhanVien = ?";				
+		try(PreparedStatement pst = conn.prepareStatement(sql)){
+			pst.setInt(1, maNV);
+			int row = pst.executeUpdate();
+			return row > 0;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public List<NhanVien> searchNhanVien(String tuKhoa) {
+        String sql = "SELECT * FROM nhan_vien "
+                + "WHERE CAST(maNhanVien AS VARCHAR) LIKE ? "
+                + "OR tenNhanVien LIKE ? "
+                + "OR SDT LIKE ? "
+                + "OR Email LIKE ? "
+                + "OR TaiKhoan LIKE ? "
+                + "ORDER BY maNhanVien DESC";
+        List<NhanVien> list = new ArrayList<>();
+
+        try (PreparedStatement pst = conn.prepareStatement(sql)) {
+        	String k = "%" + (tuKhoa == null ? "" : tuKhoa.trim()) + "%";
+	        pst.setString(1, k);
+	        pst.setString(2, k);
+	        pst.setString(3, k);
+	        pst.setString(4, k);
+	        pst.setString(5, k);
+	        
+        	try (ResultSet rs = pst.executeQuery()){
+	            while (rs.next()) {
+	                NhanVien nv = new NhanVien();
+	                nv.setMaNhanVien(rs.getInt("maNhanVien"));
+	                nv.setTenNhanVien(rs.getString("tenNhanVien"));
+	                nv.setSDT(rs.getString("SDT"));
+	                nv.setEmail(rs.getString("email"));
+	                nv.setTaiKhoan(rs.getString("taiKhoan"));
+	                nv.setMatKhau(rs.getString("matKhau"));
+	                nv.setImg(rs.getString("img"));
+	                list.add(nv);
+	            }
+            return list;
+        	}
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("Lỗi khi lấy tất cả nhân viên" + e.getMessage());
+        }
+        return list;
+    }
 }

@@ -58,6 +58,13 @@ public class MenuChinh extends JMenuBar {
         // Menu Nhân Viên
         menuNhanVien = new JMenu("Nhân Viên");
         itemQuanLyNhanVien = new JMenuItem("Quản lý nhân viên");
+        itemQuanLyNhanVien.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new GiaoDienQuanLyNhanVien(nhanVien).setVisible(true);
+                parentFrame.dispose(); 
+            }
+        });
         itemDangXuat = new JMenuItem("Đăng xuất");
         itemDangXuat.addActionListener(new ActionListener() {
             @Override
@@ -116,7 +123,13 @@ public class MenuChinh extends JMenuBar {
         menuKhachHang = new JMenu("Khách Hàng");
         itemQuanLyKhachHang = new JMenuItem("Quản lý khách hàng");
         menuKhachHang.add(itemQuanLyKhachHang);
-        
+        itemQuanLyKhachHang.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	new GiaoDienQuanLyKhachHang(nhanVien).setVisible(true);;
+            	parentFrame.dispose(); 
+            }
+        });
         
         // Thêm hành động cho "Exit"
 //        itemExit.addActionListener(new ActionListener() {

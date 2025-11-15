@@ -55,7 +55,6 @@ public class MenuToggleUtil {
                 frame.repaint();
             }
         };
-        frame.setJMenuBar(null);
         
 
         // 6. Liên kết tên hành động với đối tượng hành động

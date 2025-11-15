@@ -52,8 +52,8 @@ public class GiaoDienQuanLyVe extends JFrame implements ActionListener {
     private PhimDAO phimDAO;
 
     // Buttons
-    private JButton btnFind, btnReload;
-    private JButton btnXoaRong, btnSave, btnUpdate, btnDelete, btnInVe;
+    private JButton btnTim, btnTaiLai;
+    private JButton btnThem, btnLuu, btnSua, btnXoa, btnInVe;
     private static final Font fontChuBtn = new Font("Segoe UI", Font.BOLD, 14);
 
     private static final Color PRI_COLOR = new Color(252, 247, 223);
@@ -115,16 +115,16 @@ public class GiaoDienQuanLyVe extends JFrame implements ActionListener {
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         right.setBackground(PRI_COLOR);
 
-        btnFind = taoBtn("Tìm");
-        btnFind.addActionListener(this);
+        btnTim = taoBtn("Tìm");
+        btnTim.addActionListener(this);
 
-        btnReload = taoBtn("Tải lại");
-        btnReload.addActionListener(this);
+        btnTaiLai = taoBtn("Tải lại");
+        btnTaiLai.addActionListener(this);
 
         txtSearch.addActionListener(this);
 
-        right.add(btnFind);
-        right.add(btnReload);
+        right.add(btnTim);
+        right.add(btnTaiLai);
 
         panel.add(right, BorderLayout.EAST);
         return panel;
@@ -135,7 +135,8 @@ public class GiaoDienQuanLyVe extends JFrame implements ActionListener {
         JSplitPane vertical = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         vertical.setResizeWeight(0.55);
         vertical.setBackground(SEC_COLOR);
-
+        vertical.setBorder(new EmptyBorder(10, 20, 10, 20));
+        
         JSplitPane top = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         top.setResizeWeight(1);
         top.setBackground(SEC_COLOR);
@@ -155,6 +156,7 @@ public class GiaoDienQuanLyVe extends JFrame implements ActionListener {
         JScrollPane tableScroll = new JScrollPane(table);
         tableScroll.setBorder(new EmptyBorder(10, 20, 10, 20));
         tableScroll.setPreferredSize(new Dimension(0, 400)); 
+        tableScroll.setBackground(PRI_COLOR);
         
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setRowHeight(25);
@@ -168,7 +170,7 @@ public class GiaoDienQuanLyVe extends JFrame implements ActionListener {
         vertical.setTopComponent(top);
         vertical.setBottomComponent(tableScroll);
         vertical.setDividerLocation(400); 
-
+        
         return vertical;
     }
 
@@ -201,20 +203,20 @@ public class GiaoDienQuanLyVe extends JFrame implements ActionListener {
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 8));
         actions.setBackground(SEC_COLOR);
 
-        btnXoaRong = taoBtn("Thêm");
-        btnSave = taoBtn("Lưu");
-        btnUpdate = taoBtn("Sửa");
-        btnDelete = taoBtn("Xoá");
+        btnThem = taoBtn("Thêm");
+        btnLuu = taoBtn("Lưu");
+        btnSua = taoBtn("Sửa");
+        btnXoa = taoBtn("Xoá");
         btnInVe = taoBtn("In vé");
         
-        for (JButton b : new JButton[]{btnXoaRong, btnSave, btnUpdate, btnDelete, btnInVe}) {
+        for (JButton b : new JButton[]{btnThem, btnLuu, btnSua, btnXoa, btnInVe}) {
             b.addActionListener(this);
         }
 
-        actions.add(btnXoaRong);
-        actions.add(btnSave);
-        actions.add(btnUpdate);
-        actions.add(btnDelete);
+        actions.add(btnThem);
+        actions.add(btnLuu);
+        actions.add(btnSua);
+        actions.add(btnXoa);
         actions.add(btnInVe);
 
         gc.gridy = r++;
@@ -247,7 +249,7 @@ public class GiaoDienQuanLyVe extends JFrame implements ActionListener {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
+        cboPhim.setSelectedIndex(-1);
         // khi chưa chọn phim/phòng, vẫn clear suất/ghế
         cboSuatChieu.removeAllItems();
         cboGhe.removeAllItems();
@@ -445,30 +447,30 @@ public class GiaoDienQuanLyVe extends JFrame implements ActionListener {
         }
     }
 
-//    private void doDelete() {
-//        if (txtMaVe.getText().isBlank()) {
-//            JOptionPane.showMessageDialog(this, "Chưa chọn vé để xóa");
-//            return;
-//        }
-//        int c = JOptionPane.showConfirmDialog(this, "Xoá vé?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-//        if (c != JOptionPane.YES_OPTION) return;
-//
-//        try {
-//            int ma = Integer.parseInt(txtMaVe.getText().trim());
-//            boolean ok = veDAO.xoaVe(ma);
-//            if (ok) {
-//                JOptionPane.showMessageDialog(this, "Đã xóa vé");
-//                reloadTable();
-//                clearForm();
-//            } else {
-//                JOptionPane.showMessageDialog(this, "Xóa thất bại");
-//            }
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//            JOptionPane.showMessageDialog(this, "Lỗi xóa: " + ex.getMessage());
-//        }
-//    }
-//
+    private void doDelete() {
+        if (txtMaVe.getText().isBlank()) {
+            JOptionPane.showMessageDialog(this, "Chưa chọn vé để xóa");
+            return;
+        }
+        int c = JOptionPane.showConfirmDialog(this, "Xoá vé?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+        if (c != JOptionPane.YES_OPTION) return;
+
+        try {
+            int ma = Integer.parseInt(txtMaVe.getText().trim());
+            boolean ok = veDAO.xoaVe(ma);
+            if (ok) {
+                JOptionPane.showMessageDialog(this, "Đã xóa vé");
+                reloadTable();
+                clearForm();
+            } else {
+                JOptionPane.showMessageDialog(this, "Xóa thất bại");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi xóa: " + ex.getMessage());
+        }
+    }
+
     //=========== Search & Action ===========
     private void search() {
         String k = txtSearch.getText().trim();
@@ -497,12 +499,12 @@ public class GiaoDienQuanLyVe extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
 
-        if (o.equals(btnFind) || o.equals(txtSearch)) search();
-        else if (o.equals(btnReload)) reloadTable();
-        else if (o.equals(btnXoaRong)) clearForm();
-        else if (o.equals(btnSave)) doInsert();
-        else if (o.equals(btnUpdate)) doUpdate();
-//        else if (o.equals(btnDelete)) doDelete();
+        if (o.equals(btnTim) || o.equals(txtSearch)) search();
+        else if (o.equals(btnTaiLai)) reloadTable();
+        else if (o.equals(btnThem)) clearForm();
+        else if (o.equals(btnLuu)) doInsert();
+        else if (o.equals(btnSua)) doUpdate();
+        else if (o.equals(btnXoa)) doDelete();
         else if (o.equals(btnInVe)) {
 			try {
 				JFrame frame = new JFrame("Vé xem phim");

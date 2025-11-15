@@ -9,8 +9,10 @@ public class NhanVien {
     private String email;
     private String taiKhoan;
     private String matKhau;
+    private String img;
     
-	public NhanVien(Integer maNhanVien, String tenNhanVien, String SDT, String email, String taiKhoan, String matKhau) {
+	public NhanVien(Integer maNhanVien, String tenNhanVien, String SDT, String email
+			, String taiKhoan, String matKhau, String img) {
 		super();
 		this.maNhanVien = maNhanVien;
 		this.tenNhanVien = tenNhanVien;
@@ -18,6 +20,7 @@ public class NhanVien {
 		this.email = email;
 		this.taiKhoan = taiKhoan;
 		this.matKhau = matKhau;
+		this.img = img;
 	}
 	
 	public NhanVien() {
@@ -71,7 +74,16 @@ public class NhanVien {
 	public void setMatKhau(String matKhau) {
 		this.matKhau = matKhau;
 	}
+	
     
+	public String getImg() {
+		return img;
+	}
+
+	public void setImg(String img) {
+		this.img = img;
+	}
+
 	@Override
 	public String toString() {
 		return this.tenNhanVien;

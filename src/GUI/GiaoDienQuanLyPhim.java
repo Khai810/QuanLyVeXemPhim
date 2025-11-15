@@ -377,7 +377,6 @@ public class GiaoDienQuanLyPhim extends JPanel implements ActionListener {
     	btn.setForeground(BTN_COLOR);
     	btn.setPreferredSize(new Dimension(90, 40));
     	btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-    	btn.addActionListener(this);
     	btn.setOpaque(true);
     	btn.setBorderPainted(false);
     	btn.setContentAreaFilled(true);
