@@ -2,6 +2,7 @@ package Entity;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Objects;
 
 public class SuatChieu {
 	private Integer maSuatChieu;
@@ -63,5 +64,22 @@ public class SuatChieu {
 		this.giaVeCoBan = giaVeCoBan;
 	}
     
+	@Override
+	public String toString() {
+		return this.getPhim().getTenPhim() + " - " + this.ngayChieu.toString() + " - " + this.gioChieu.toString();
+	}
     
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (o == null || getClass() != o.getClass()) return false;
+	    SuatChieu that = (SuatChieu) o;
+	    return maSuatChieu == that.maSuatChieu;
+	}
+
+	@Override
+	public int hashCode() {
+	    return Objects.hash(maSuatChieu);
+	}
+
 }

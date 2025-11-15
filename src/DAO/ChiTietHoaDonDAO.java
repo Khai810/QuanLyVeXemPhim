@@ -68,7 +68,7 @@ public class ChiTietHoaDonDAO {
 	                ChiTietHoaDon cthd = new ChiTietHoaDon();
 	                HoaDon hoaDon = hoaDonDAO.layHoaDonBangMaHoaDon(rs.getInt("maHD"));
 	                cthd.setHoaDon(hoaDon);
-	                Ve ve = veDAO.layVeBangMa(rs.getInt("maVe"));
+	                Ve ve = veDAO.layVeBangMaVe(rs.getInt("maVe"));
 	                cthd.setVe(ve);
 	                cthd.setDonGiaBan(rs.getDouble(3));
 	                cthd.setSoLuong(rs.getInt(4));

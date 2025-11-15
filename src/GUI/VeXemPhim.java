@@ -20,13 +20,14 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public class TicketPanel extends JPanel {
+public class VeXemPhim extends JPanel {
 //    private List<ChiTietHoaDon> listCTHD;
     private Ve ve;
 	private BufferedImage qrCodeImage;
-    public TicketPanel(Ve ve) {
+    public VeXemPhim(Ve ve) {
         this.ve = ve;
         setPreferredSize(new Dimension(400, 350)); // kích thước vé
+        setBackground(PRI_COLOR);
         try {
             this.qrCodeImage = generateQRCode("VE-" + ve.getMaVe(), 100, 100);
         } catch (WriterException e) {
@@ -56,7 +57,7 @@ public class TicketPanel extends JPanel {
         g2.fillRoundRect(10, 10, 380, 320, 30, 30);
 
         // Viền
-        g2.setColor(Color.DARK_GRAY);
+        g2.setColor(Color.LIGHT_GRAY);
         g2.setStroke(new BasicStroke(2));
         g2.drawRoundRect(10, 10, 380, 320, 30, 30);
 

@@ -148,7 +148,7 @@ public class GiaoDienDatVeThanhCong extends JFrame implements ActionListener{
 		else if(event.equals(btnInVe)) {
 			for(Ve ve : listCTHD.stream().map(ChiTietHoaDon::getVe).toList()) {
 				JFrame frame = new JFrame("Vé xem phim");
-				TicketPanel pnlVe = new TicketPanel(ve);
+				VeXemPhim pnlVe = new VeXemPhim(ve);
 				frame.add(pnlVe);
 		        frame.pack();
 		        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

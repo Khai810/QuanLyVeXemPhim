@@ -1,5 +1,7 @@
 package Entity;
 
+import java.util.Objects;
+
 public class Ghe {
 	private Integer maGhe;
     private String tenGhe;
@@ -50,5 +52,21 @@ public class Ghe {
 		this.phongChieu = phongChieu;
 	}
     
+	@Override
+	public String toString() {
+		return this.tenGhe;
+	}
     
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (o == null || getClass() != o.getClass()) return false;
+	    Ghe that = (Ghe) o;
+	    return maGhe == that.maGhe;
+	}
+
+	@Override
+	public int hashCode() {
+	    return Objects.hash(maGhe);
+	}
 }

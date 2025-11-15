@@ -58,7 +58,7 @@ public class GiaoDienQuanLyPhim extends JPanel implements ActionListener {
 
     // Selected image path
     private String selectedImgPath = null;
-    
+    private static final Dimension POSTER_SIZE = new Dimension(320, 450);
     private static final Color PRI_COLOR = new Color(252, 247, 223);
     private static final Color SEC_COLOR = new Color(253, 252, 241);
     private static final Color RED_COLOR = new Color(212, 54, 37);
@@ -180,11 +180,12 @@ public class GiaoDienQuanLyPhim extends JPanel implements ActionListener {
         formPanel.add(actionPanel, gc);
 
         // Poster panel
-        lblPoster.setPreferredSize(new Dimension(260,350));
+        lblPoster.setPreferredSize(POSTER_SIZE);
         lblPoster.setBorder(new LineBorder(Color.LIGHT_GRAY));
         lblPoster.setHorizontalAlignment(SwingConstants.CENTER);
         lblPoster.setVerticalAlignment(SwingConstants.CENTER);
         
+        topSplit.setDividerLocation(1000);
         topSplit.setLeftComponent(formPanel);
         topSplit.setRightComponent(lblPoster);
 
@@ -201,7 +202,7 @@ public class GiaoDienQuanLyPhim extends JPanel implements ActionListener {
 
         verticalSplit.setTopComponent(topSplit);
         verticalSplit.setBottomComponent(tableScroll);
-
+        verticalSplit.setDividerLocation(450);
         return verticalSplit;
     }
 
@@ -235,10 +236,9 @@ public class GiaoDienQuanLyPhim extends JPanel implements ActionListener {
             lblPoster.setText("<html><center>Poster<br>không có</center></html>");
             return;
         }
-        ImageIcon icon = new ImageIcon(new ImageIcon(path).getImage().getScaledInstance(
-            260,350, Image.SCALE_SMOOTH
-        ));
-        lblPoster.setIcon(icon);
+        LoadHinhAnh loadHinhAnh = new LoadHinhAnh();
+    	ImageIcon imageIcon = loadHinhAnh.taiHinhAnh(path, POSTER_SIZE.width, POSTER_SIZE.height);
+        lblPoster.setIcon(imageIcon);
         lblPoster.setText("");
     }
 

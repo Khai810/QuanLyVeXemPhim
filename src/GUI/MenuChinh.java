@@ -44,7 +44,13 @@ public class MenuChinh extends JMenuBar {
       });
         
         itemQuanLyVe = new JMenuItem("Quản lý vé");
-        
+        itemQuanLyVe.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new GiaoDienQuanLyVe(nhanVien).setVisible(true);
+                parentFrame.dispose(); 
+            }
+        });
         menuVe.add(itemMuaVe);
 //        menuVe.addSeparator(); // Đường kẻ ngang
         menuVe.add(itemQuanLyVe);

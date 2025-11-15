@@ -1,5 +1,6 @@
 package GUI;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.DefaultTableModel;
@@ -10,6 +11,8 @@ import Entity.*;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -43,7 +46,7 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
     };
 
     private JTable table = new JTable(model);
-
+    private JPanel pnlHoaDon;
     // DAO
     private Connection conn;
     private HoaDonDAO hoaDonDAO;
@@ -51,11 +54,12 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
     private NhanVienDAO nhanVienDAO;
     private KhuyenMaiDAO khuyenMaiDAO;
     private PhuongThucThanhToanDAO ptttDAO;
-    private NhanVien nhanVien;
+
     // Buttons
     private JButton btnFind, btnReload;
-    private JButton btnXoaRong, btnSave, btnUpdate, btnDelete;
+    private JButton btnXoaRong, btnSave, btnUpdate, btnDelete, btnInHoaDon;
     private static final Font fontChu = new Font("Segoe UI", Font.BOLD, 14);
+    private static final String FILE_PATH = "inVe/";
 
 	private static final Color PRI_COLOR = new Color(252, 247, 223);
     private static final Color SEC_COLOR = new Color(253, 252, 241);
@@ -68,7 +72,6 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
     //=========== Constructor ===========
 
     public GiaoDienQuanLyHoaDon(NhanVien nhanVien) {
-        this.nhanVien = nhanVien;
     	try {
             this.conn = ConnectDB.getConnection();
             this.hoaDonDAO = new HoaDonDAO(conn);
@@ -196,15 +199,11 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
         btnSave = taoBtn("Lưu");
         btnUpdate = taoBtn("Sửa");
         btnDelete = taoBtn("Xoá");
-
-        for (JButton b : new JButton[]{btnXoaRong, btnSave, btnUpdate, btnDelete}) {
+        btnInHoaDon = taoBtn("In HĐ");
+        for (JButton b : new JButton[]{btnXoaRong, btnSave, btnUpdate, btnDelete, btnInHoaDon}) {
             b.addActionListener(this);
+            actions.add(b);
         }
-
-        actions.add(btnXoaRong);
-        actions.add(btnSave);
-        actions.add(btnUpdate);
-        actions.add(btnDelete);
 
         gc.gridy = r++;
         gc.gridx = 0;
@@ -311,7 +310,7 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
             reloadTable();
             
             List<ChiTietHoaDon> listCTHD = new ChiTietHoaDonDAO(conn).layChitiethoadon(h.getMaHD());
-            JPanel pnlHoaDon = taopnlhoaDon(h, listCTHD);
+            pnlHoaDon = taopnlhoaDon(h, listCTHD);
             // Xóa nội dung cũ
             topRight.removeAll();
             // Thêm hóa đơn mới
@@ -365,7 +364,7 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
         cboPTTT.setSelectedItem(h.getPhuongThucThanhToan());
         
         List<ChiTietHoaDon> listCTHD = new ChiTietHoaDonDAO(conn).layChitiethoadon(h.getMaHD());
-        JPanel pnlHoaDon = taopnlhoaDon(h, listCTHD);
+        pnlHoaDon = taopnlhoaDon(h, listCTHD);
 
         // Xóa nội dung cũ
         topRight.removeAll();
@@ -405,6 +404,21 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
         else if (o.equals(btnSave)) doInsert();
         else if (o.equals(btnUpdate)) doUpdate();
         else if (o.equals(btnDelete)) doDelete();
+        else if (o.equals(btnInHoaDon)) {
+			try {
+				JFrame frame = new JFrame("Hóa đơn" + txtMaHD.getText());
+				frame.add(pnlHoaDon);
+		        frame.pack();
+		        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		        frame.setLocationRelativeTo(null);
+		        frame.setVisible(true);
+		        
+				inHoaDon(pnlHoaDon, FILE_PATH + "hoaDon" + txtMaHD.getText() + ".png");
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+        }
     }
 
     private void search() {
@@ -479,6 +493,21 @@ public class GiaoDienQuanLyHoaDon extends JFrame implements ActionListener {
         lbl.setForeground(TEXT_COLOR);
         return lbl;
     }    
+    
+    public void inHoaDon(JPanel panel, String filePath) throws Exception {
+		panel.setSize(panel.getPreferredSize());
+	    panel.doLayout();
+		int w = panel.getWidth();
+	    int h = panel.getHeight();
+
+	    BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+	    Graphics2D g2 = img.createGraphics();
+	    panel.printAll(g2);
+	    g2.dispose();
+
+	    ImageIO.write(img, "png", new File(filePath));
+	}
+
     private JPanel taopnlhoaDon(HoaDon hoaDon, List<ChiTietHoaDon> listCTHD) {
     	JLabel lblMaGD, lblPhuongThuc, lblSoTien, lblSuatChieu, lblNgayChieu
         , lblPhongChieu, lblTenKH, lblTenNV, lblSDTKH;

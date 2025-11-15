@@ -56,8 +56,6 @@ public class GheDAO {
 	    }
 	    return null;
 	}
-
-
 	
 	public Ghe layGhebangMaGhe(int maGhe) {
 		String sql = "SELECT * FROM ghe g LEFT JOIN loai_ghe lg ON g.maLoaiGhe = lg.maLoaiGhe  WHERE maGhe = ? ";
@@ -118,5 +116,6 @@ public class GheDAO {
         }
         return list;
     }
+
 }
 
